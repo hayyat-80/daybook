@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "nextjs", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/set-state-in-effect": "error",
+    "react/react-in-jsx-scope": "off",
+    "unicorn/no-array-sort": "error"
+  },
+  "ignorePatterns": [".next/**", "node_modules/**", "out/**"],
+  "env": {
+    "builtin": true
+  },
+  "settings": {
+    "next": {
+      "rootDir": "."
+    }
+  }
+}

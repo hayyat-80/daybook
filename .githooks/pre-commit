@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+echo "→ Scanning staged files for secrets…"
+node scripts/check-secrets.mjs
+
+echo "→ Running pre-commit checks (lint + typecheck)…"
+npm run check
+echo "→ Checks passed."

@@ -1,0 +1,87 @@
+export const typography = {
+  largeTitle: {
+    fontFamily: "var(--font-display)",
+    fontSize: 34,
+    fontWeight: 600,
+    letterSpacing: -0.04,
+    lineHeight: 1.1,
+  },
+  title1: {
+    fontFamily: "var(--font-display)",
+    fontSize: 28,
+    fontWeight: 600,
+    letterSpacing: -0.03,
+    lineHeight: 1.15,
+  },
+  title2: {
+    fontFamily: "var(--font-display)",
+    fontSize: 22,
+    fontWeight: 600,
+    letterSpacing: -0.02,
+    lineHeight: 1.2,
+  },
+  title3: {
+    fontFamily: "var(--font-display)",
+    fontSize: 20,
+    fontWeight: 600,
+    letterSpacing: -0.02,
+  },
+  headline: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 16,
+    fontWeight: 600,
+    letterSpacing: -0.01,
+  },
+  body: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 16,
+    fontWeight: 400,
+    lineHeight: 1.5,
+  },
+  callout: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 15,
+    fontWeight: 400,
+  },
+  subhead: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.45,
+  },
+  footnote: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 13,
+    fontWeight: 500,
+  },
+  caption: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 12,
+    fontWeight: 500,
+    letterSpacing: 0.02,
+  },
+  prayerTime: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 15,
+    fontWeight: 500,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
+  countdown: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 15,
+    fontWeight: 500,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
+  heroPrayer: {
+    fontFamily: "var(--font-display)",
+    fontSize: 48,
+    fontWeight: 600,
+    letterSpacing: -0.03,
+  },
+  heroTime: {
+    fontFamily: "var(--font-sans)",
+    fontSize: 32,
+    fontWeight: 500,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
+} as const;

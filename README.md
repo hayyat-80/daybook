@@ -42,7 +42,12 @@ npm run lint
 npm run format
 ```
 
-`npm install` enables a git pre-commit hook that runs `npm run check` and blocks the commit if anything fails.
+`npm install` enables a git pre-commit hook that:
+
+1. Scans staged files for secrets (blocks `.env`, tokens, etc.)
+2. Runs `npm run check` (lint + typecheck)
+
+Real credentials stay in `.env` (gitignored). Only `.env.example` with placeholders is safe to commit.
 
 ## Adding a section
 

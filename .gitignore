@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Expo leftovers (if any)
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native / certs / keys
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+*.p7b
+*.crt
+id_rsa
+id_rsa.*
+*.keystore
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# local env / secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+!.env*.example
+*.env.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+credentials.json
+**/secrets/**
+*.secret
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel / tooling
+.vercel/
+.claude/
