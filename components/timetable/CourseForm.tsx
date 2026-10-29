@@ -4,16 +4,23 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import { Chevron } from "@/components/ui/Chevron";
 import { Field, Select, TextArea, TextInput } from "@/components/ui/Field";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { IconButton, TrashIcon } from "@/components/ui/IconButton";
 import { MultiDatePicker } from "@/components/ui/MultiDatePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
-import { useTheme } from "@/design-system/theme";
 import { parseWeeklyPlan } from "@/services/timetable/planImport";
-import { formatDisplayDate, parseFlexibleDate } from "@/services/timetable/recurrence";
+import {
+  formatDisplayDate,
+  parseFlexibleDate,
+  weekdayFromDateKey,
+} from "@/services/timetable/recurrence";
 import { emptyDraft, emptySessionDraft } from "@/stores/timetableStore";
 import type { RecurrenceKind, SubjectColor, TimetableDraft, Weekday } from "@/types/timetable";
 import { SUBJECT_COLORS } from "@/types/timetable";
+
+import styles from "./CourseForm.module.css";
 
 const TIME_RE = /^\d{2}:\d{2}$/;
 
@@ -26,7 +33,6 @@ type Props = Readonly<{
 
 export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
   const { t } = useTranslation();
-  const { colors, spacing, radius, typography } = useTheme();
   const [todayKey] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -138,11 +144,7 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
       </Field>
 
       <div>
-        <div
-          style={{ color: colors.textSecondary, ...typography.footnote, marginBottom: spacing.xs }}
-        >
-          {t("timetable.fields.color")}
-        </div>
+        <div className={`type-footnote ${styles.colorLabel}`}>{t("timetable.fields.color")}</div>
         <div className="color-swatches">
           {SUBJECT_COLORS.map((color) => (
             <button
@@ -150,29 +152,27 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
               type="button"
               aria-label={color}
               onClick={() => setDraft((d) => ({ ...d, color: color as SubjectColor }))}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: radius.full,
-                background: color,
-                border:
-                  draft.color === color ? `2px solid ${colors.text}` : "2px solid transparent",
-              }}
+              className={`${styles.swatch}${draft.color === color ? ` ${styles.swatchSelected}` : ""}`}
+              style={{ ["--swatch-color" as string]: color }}
             />
           ))}
         </div>
       </div>
 
-      <label className="ui-check">
-        <input
-          type="checkbox"
-          checked={draft.mandatory}
-          onChange={(e) => setDraft((d) => ({ ...d, mandatory: e.target.checked }))}
-        />
-        <span className="ui-check__text">
-          <strong>{t("timetable.fields.mandatory")}</strong>
-          <span style={{ color: colors.textSecondary, ...typography.caption }}>
-            {t("timetable.fields.mandatoryHint")}
+      <label className="toggle-row">
+        <span className="toggle-row__copy">
+          <strong className="toggle-row__title">{t("timetable.fields.mandatory")}</strong>
+          <span className="toggle-row__hint">{t("timetable.fields.mandatoryHint")}</span>
+        </span>
+        <span className="toggle-row__control">
+          <input
+            type="checkbox"
+            className="toggle-row__input"
+            checked={draft.mandatory}
+            onChange={(e) => setDraft((d) => ({ ...d, mandatory: e.target.checked }))}
+          />
+          <span className="toggle-row__track" aria-hidden>
+            <span className="toggle-row__thumb" />
           </span>
         </span>
       </label>
@@ -194,26 +194,18 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
         >
           <span className="collapse-panel__heading">{t("timetable.pastePlan")}</span>
           <span className="collapse-panel__chevron" aria-hidden>
-            {planOpen ? "▴" : "▾"}
+            <Chevron open={planOpen} />
           </span>
         </button>
         {planOpen ? (
           <div className="collapse-panel__body">
-            <p
-              style={{
-                margin: `0 0 ${spacing.sm}px`,
-                color: colors.textSecondary,
-                ...typography.caption,
-              }}
-            >
-              {t("timetable.pastePlanHint")}
-            </p>
+            <p className={`type-caption ${styles.planHint}`}>{t("timetable.pastePlanHint")}</p>
             <TextArea
               value={planText}
               placeholder={t("timetable.placeholders.plan")}
               onChange={(e) => setPlanText(e.target.value)}
             />
-            <Button variant="secondary" block style={{ marginTop: spacing.sm }} onClick={applyPlan}>
+            <Button variant="secondary" block className={styles.applyPlan} onClick={applyPlan}>
               {t("timetable.applyPlan")}
             </Button>
           </div>
@@ -221,7 +213,7 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
       </section>
 
       <div className="row row--between">
-        <h3 style={{ margin: 0, ...typography.headline }}>{t("timetable.fields.sessions")}</h3>
+        <h3 className="type-headline">{t("timetable.fields.sessions")}</h3>
         <Button
           variant="ghost"
           onClick={() => {
@@ -238,18 +230,12 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
           {t("timetable.addSession")}
         </Button>
       </div>
-      <p style={{ margin: 0, color: colors.textSecondary, ...typography.caption }}>
-        {t("timetable.fields.sessionsHint")}
-      </p>
+      <p className="type-caption">{t("timetable.fields.sessionsHint")}</p>
 
       {draft.sessions.length === 0 ? (
-        <div className="empty-state" style={{ padding: "1rem 1.1rem" }}>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 600 }}>
-            {t("timetable.noScheduleTitle")}
-          </div>
-          <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>
-            {t("timetable.noScheduleBody")}
-          </p>
+        <div className="empty-state empty-state--compact">
+          <div className="empty-state__title--sm">{t("timetable.noScheduleTitle")}</div>
+          <p className="empty-state__body">{t("timetable.noScheduleBody")}</p>
         </div>
       ) : null}
 
@@ -259,18 +245,13 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
           .filter(Boolean)
           .join(" · ");
         return (
-          <div
-            key={session.id}
-            className="panel collapse-panel"
-            style={{ background: colors.background }}
-          >
-            <div className="row" style={{ alignItems: "stretch", gap: 0 }}>
+          <div key={session.id} className={`panel collapse-panel ${styles.sessionPanel}`}>
+            <div className={`row ${styles.sessionHeaderRow}`}>
               <button
                 type="button"
-                className="collapse-panel__header"
+                className={`collapse-panel__header ${styles.sessionHeader}`}
                 aria-expanded={isOpen}
                 onClick={() => toggleSession(session.id)}
-                style={{ flex: 1 }}
               >
                 <span className="collapse-panel__heading">
                   {t("timetable.session")} {index + 1}
@@ -279,12 +260,13 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
                   ) : null}
                 </span>
                 <span className="collapse-panel__chevron" aria-hidden>
-                  {isOpen ? "▴" : "▾"}
+                  <Chevron open={isOpen} />
                 </span>
               </button>
               <div className="collapse-panel__actions">
-                <Button
-                  variant="ghost"
+                <IconButton
+                  label={t("timetable.removeSession")}
+                  tone="danger"
                   onClick={() => {
                     setDraft((d) => ({
                       ...d,
@@ -297,8 +279,8 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
                     });
                   }}
                 >
-                  {t("timetable.removeSession")}
-                </Button>
+                  <TrashIcon />
+                </IconButton>
               </div>
             </div>
 
@@ -364,29 +346,39 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
                   </Field>
                 ) : (
                   <>
+                    <Field label={t("timetable.fields.startDate")}>
+                      <DatePicker
+                        value={session.startDate}
+                        todayKey={todayKey}
+                        onChange={(startDate) => {
+                          const key = parseFlexibleDate(startDate);
+                          updateSession(index, {
+                            startDate,
+                            weekday: key ? weekdayFromDateKey(key) : null,
+                          });
+                          setError(null);
+                        }}
+                      />
+                    </Field>
                     <Field label={t("timetable.fields.weekday")}>
                       <Select
-                        value={session.weekday}
+                        value={session.weekday ?? ""}
                         onChange={(e) =>
-                          updateSession(index, { weekday: Number(e.target.value) as Weekday })
+                          updateSession(index, {
+                            weekday:
+                              e.target.value === ""
+                                ? null
+                                : (Number(e.target.value) as Weekday),
+                          })
                         }
                       >
+                        <option value="">{t("timetable.placeholders.weekday")}</option>
                         {Array.from({ length: 7 }, (_, i) => (
                           <option key={i} value={i}>
                             {t(`timetable.weekdaysShort.${i}`)}
                           </option>
                         ))}
                       </Select>
-                    </Field>
-                    <Field label={t("timetable.fields.startDate")}>
-                      <DatePicker
-                        value={session.startDate}
-                        todayKey={todayKey}
-                        onChange={(startDate) => {
-                          updateSession(index, { startDate });
-                          setError(null);
-                        }}
-                      />
                     </Field>
                     <Field label={t("timetable.fields.endDateOptional")}>
                       <DatePicker
@@ -403,14 +395,22 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
                   </>
                 )}
 
-                <label className="ui-check" style={{ marginTop: spacing.sm }}>
-                  <input
-                    type="checkbox"
-                    checked={session.enabled}
-                    onChange={(e) => updateSession(index, { enabled: e.target.checked })}
-                  />
-                  <span className="ui-check__text" style={typography.subhead}>
-                    {t("timetable.fields.sessionEnabled")}
+                <label className="toggle-row">
+                  <span className="toggle-row__copy">
+                    <strong className="toggle-row__title">
+                      {t("timetable.fields.sessionEnabled")}
+                    </strong>
+                  </span>
+                  <span className="toggle-row__control">
+                    <input
+                      type="checkbox"
+                      className="toggle-row__input"
+                      checked={session.enabled}
+                      onChange={(e) => updateSession(index, { enabled: e.target.checked })}
+                    />
+                    <span className="toggle-row__track" aria-hidden>
+                      <span className="toggle-row__thumb" />
+                    </span>
                   </span>
                 </label>
               </div>
@@ -419,9 +419,7 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
         );
       })}
 
-      {error ? (
-        <p style={{ margin: 0, color: "#BE123C", ...typography.footnote }}>{error}</p>
-      ) : null}
+      {error ? <p className="text-error">{error}</p> : null}
 
       {confirmDelete && onDelete ? (
         <div className="confirm-banner">

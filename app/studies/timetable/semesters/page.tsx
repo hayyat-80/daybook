@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput } from "@/components/ui/Field";
+import { IconButton, TrashIcon } from "@/components/ui/IconButton";
 import { Modal } from "@/components/ui/Modal";
 import { Shell } from "@/components/ui/Shell";
-import { useTheme } from "@/design-system/theme";
 import { createId, formatDisplayDate, parseFlexibleDate } from "@/services/timetable/recurrence";
 import { suggestSemesterName } from "@/services/timetable/semester";
 import { useAppStore } from "@/stores/appStore";
@@ -25,7 +25,6 @@ function emptySemesterDraft(): SemesterDraft {
 
 export default function SemestersPage() {
   const { t } = useTranslation();
-  const { colors, spacing, radius, typography } = useTheme();
   const showToast = useAppStore((s) => s.showToast);
   const semesters = useTimetableStore((s) => s.semesters);
   const entries = useTimetableStore((s) => s.entries);
@@ -143,16 +142,15 @@ export default function SemestersPage() {
           return (
             <div
               key={semester.id}
-              className={`entity-card${active ? " entity-card--active" : ""}`}
-              style={{ flexDirection: "column", alignItems: "stretch" }}
+              className={`entity-card entity-card--column${active ? " entity-card--active" : ""}`}
             >
-              <div className="row row--between" style={{ gap: 12, width: "100%" }}>
+              <div className="row row--between row--fill">
                 <div className="entity-card__body">
                   <div className="list-row__title">
                     {semester.name}
                     {active ? ` · ${t("timetable.semester.active")}` : ""}
                   </div>
-                  <div className="list-row__meta" style={{ marginTop: 4 }}>
+                  <div className="list-row__meta meta-gap">
                     {t("timetable.semester.courseCount", { count: courseCount })}
                     {semester.breaks?.length
                       ? ` · ${t("timetable.semester.breakCount", { count: semester.breaks.length })}`
@@ -175,17 +173,18 @@ export default function SemestersPage() {
                     >
                       {t("timetable.semester.edit")}
                     </Button>
-                    <Button
-                      variant="danger"
+                    <IconButton
+                      label={t("timetable.semester.delete")}
+                      tone="danger"
                       onClick={() => requestDelete(semester.id, courseCount)}
                     >
-                      {t("timetable.semester.delete")}
-                    </Button>
+                      <TrashIcon />
+                    </IconButton>
                   </div>
                 ) : null}
               </div>
               {deleting ? (
-                <div className="confirm-banner" style={{ marginTop: 12 }}>
+                <div className="confirm-banner confirm-banner--inset">
                   <p className="confirm-banner__text">
                     {courseCount > 0
                       ? t("timetable.semester.deleteBodyWithCourses", { count: courseCount })
@@ -238,7 +237,7 @@ export default function SemestersPage() {
         </div>
 
         <div className="row row--between">
-          <h3 style={{ margin: 0, ...typography.headline }}>{t("timetable.semester.breaks")}</h3>
+          <h3 className="type-headline">{t("timetable.semester.breaks")}</h3>
           <Button
             variant="ghost"
             onClick={() =>
@@ -254,20 +253,10 @@ export default function SemestersPage() {
             {t("timetable.semester.addBreak")}
           </Button>
         </div>
-        <p style={{ color: colors.textSecondary, ...typography.caption }}>
-          {t("timetable.semester.breaksHint")}
-        </p>
+        <p className="type-caption">{t("timetable.semester.breaksHint")}</p>
 
         {draft.breaks.map((b, index) => (
-          <div
-            key={b.id}
-            style={{
-              marginTop: spacing.sm,
-              padding: spacing.md,
-              borderRadius: radius.md,
-              background: colors.backgroundSecondary,
-            }}
-          >
+          <div key={b.id} className="break-card">
             <Field label={t("timetable.semester.breakNamePlaceholder")}>
               <TextInput
                 value={b.name}
@@ -320,9 +309,9 @@ export default function SemestersPage() {
           </div>
         ))}
 
-        {error ? <p style={{ color: "#BE123C", ...typography.footnote }}>{error}</p> : null}
+        {error ? <p className="text-error">{error}</p> : null}
 
-        <div className="actions-bar actions-bar--form" style={{ marginTop: spacing.md }}>
+        <div className="actions-bar actions-bar--form actions-bar--spaced">
           <Button loading={busy} onClick={() => void save()}>
             {busy ? t("common.saving") : t("timetable.save")}
           </Button>

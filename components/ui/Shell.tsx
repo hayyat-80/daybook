@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useTheme } from "@/design-system/theme";
+import { Chevron } from "@/components/ui/Chevron";
 
 type ShellProps = {
   title?: string;
@@ -13,7 +13,6 @@ type ShellProps = {
   backLabel?: string;
   action?: ReactNode;
   children: ReactNode;
-  style?: CSSProperties;
   brand?: boolean;
 };
 
@@ -24,20 +23,19 @@ export function Shell({
   backLabel,
   action,
   children,
-  style,
   brand = false,
 }: ShellProps) {
-  const { colors } = useTheme();
   const { t } = useTranslation();
 
   return (
-    <div className="app-shell" style={{ color: colors.text, ...style }}>
+    <div className="app-shell">
       {(backHref || title || action) && !brand ? (
         <header className="app-shell__header">
           <div className="app-shell__header-main">
             {backHref ? (
               <Link href={backHref} className="app-shell__back">
-                ← {backLabel ?? t("hub.backHome")}
+                <Chevron direction="left" />
+                {backLabel ?? t("hub.backHome")}
               </Link>
             ) : null}
             {title ? <h1 className="app-shell__title">{title}</h1> : null}

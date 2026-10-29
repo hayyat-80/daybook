@@ -80,11 +80,12 @@ function sessionDraftToSession(draft: SessionDraft): CourseSession {
     };
   }
 
+  const startDate = parseFlexibleDate(draft.startDate) ?? draft.startDate;
   return {
     ...base,
     dates: undefined,
-    weekday: draft.weekday,
-    startDate: parseFlexibleDate(draft.startDate) ?? draft.startDate,
+    weekday: draft.weekday ?? (startDate ? weekdayFromDateKey(startDate) : undefined),
+    startDate,
     endDate: draft.endDate.trim()
       ? (parseFlexibleDate(draft.endDate) ?? draft.endDate.trim())
       : null,
@@ -187,7 +188,7 @@ export function emptySessionDraft(todayKey: string, label = "Lecture"): SessionD
     endTime: "10:45",
     recurrence: "weekly",
     dates: [],
-    weekday: weekdayFromDateKey(todayKey),
+    weekday: null,
     startDate: formatDisplayDate(todayKey),
     endDate: "",
     enabled: true,
@@ -215,7 +216,7 @@ function sessionToDraft(session: CourseSession): SessionDraft {
     endTime: session.endTime,
     recurrence: normalizeRecurrence(session.recurrence),
     dates: session.dates ?? [],
-    weekday: session.weekday ?? weekdayFromDateKey(session.startDate ?? today),
+    weekday: session.weekday ?? null,
     startDate: formatDisplayDate(session.startDate ?? today),
     endDate: session.endDate ? formatDisplayDate(session.endDate) : "",
     enabled: session.enabled ?? true,

@@ -7,70 +7,34 @@ import type {
   TextareaHTMLAttributes,
 } from "react";
 
-import { useTheme } from "@/design-system/theme";
-
 export function FieldLabel({ children }: { children: ReactNode }) {
-  const { colors, spacing, typography } = useTheme();
-  return (
-    <label
-      style={{
-        display: "block",
-        marginBottom: spacing.xs,
-        color: colors.textSecondary,
-        ...typography.footnote,
-      }}
-    >
-      {children}
-    </label>
-  );
+  return <label className="field__label">{children}</label>;
 }
 
 export function TextInput({
   className = "",
-  style,
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className={`field-control${className ? ` ${className}` : ""}`}
-      style={style}
-    />
-  );
+  return <input {...props} className={`field-control${className ? ` ${className}` : ""}`} />;
 }
 
 export function TextArea({
   className = "",
-  style,
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      {...props}
-      className={`field-control${className ? ` ${className}` : ""}`}
-      style={style}
-    />
-  );
+  return <textarea {...props} className={`field-control${className ? ` ${className}` : ""}`} />;
 }
 
 export function Select({
   className = "",
-  style,
   ...props
 }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      {...props}
-      className={`field-control${className ? ` ${className}` : ""}`}
-      style={style}
-    />
-  );
+  return <select {...props} className={`field-control${className ? ` ${className}` : ""}`} />;
 }
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
-  const { spacing } = useTheme();
   return (
-    <div style={{ marginBottom: spacing.md }}>
+    <div className="field">
       <FieldLabel>{label}</FieldLabel>
       {children}
     </div>

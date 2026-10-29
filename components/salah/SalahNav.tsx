@@ -24,7 +24,6 @@ export function SalahNav() {
             key={link.href}
             href={link.href}
             className={`segmented__item${active ? " is-active" : ""}`}
-            style={active ? undefined : { color: "var(--ui-muted)" }}
           >
             {t(link.key)}
           </Link>

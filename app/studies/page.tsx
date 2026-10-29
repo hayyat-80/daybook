@@ -19,13 +19,7 @@ export default function StudiesPage() {
             className={`module-card rise-delay-${index + 1}`}
             style={{ ["--module-accent" as string]: mod.accent }}
           >
-            <div
-              className="module-card__icon"
-              style={{
-                background: `color-mix(in srgb, ${mod.accent} 16%, transparent)`,
-                color: mod.accent,
-              }}
-            >
+            <div className="module-card__icon">
               <span className={`mark mark--${mod.mark}`} aria-hidden />
             </div>
             <div className="list-row__body">

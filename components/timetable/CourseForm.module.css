@@ -1,0 +1,40 @@
+.colorLabel {
+  margin-bottom: 4px;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background: var(--swatch-color);
+  padding: 0;
+}
+
+.swatchSelected {
+  border-color: var(--ui-text);
+}
+
+.planHint {
+  margin: 0 0 8px;
+}
+
+.applyPlan {
+  margin-top: 8px;
+}
+
+.sessionPanel {
+  background: var(--ui-bg);
+}
+
+.sessionHeaderRow {
+  align-items: center;
+  gap: 0;
+  flex-wrap: nowrap;
+}
+
+.sessionHeader {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}

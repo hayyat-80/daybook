@@ -248,6 +248,7 @@
       "title": "e.g. Codesign I",
       "room": "e.g. A10.201 (1/201)",
       "endDate": "Leave empty if ongoing",
+      "weekday": "From start date",
       "note": "Optional note",
       "sessionLabel": "e.g. Lecture, Exercise group 3",
       "plan": "12.10.2026 In-presence class (A10.204)"

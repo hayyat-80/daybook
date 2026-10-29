@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import { Chevron } from "@/components/ui/Chevron";
 import { useIsClient } from "@/hooks/useIsClient";
 import { popoverStyle, usePopoverPosition } from "@/hooks/usePopoverPosition";
 
@@ -190,9 +191,7 @@ export function TimePicker({ value, onChange, minuteStep = 5 }: Props) {
         onClick={toggleOpen}
       >
         <span className="time-picker__value">{value || "––:––"}</span>
-        <span className="time-picker__chevron" aria-hidden>
-          {open ? "▴" : "▾"}
-        </span>
+        <Chevron open={open} className="time-picker__chevron" />
       </button>
       {panel}
     </div>

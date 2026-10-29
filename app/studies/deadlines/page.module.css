@@ -1,0 +1,11 @@
+.editTrigger {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: start;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

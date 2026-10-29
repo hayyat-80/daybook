@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { CourseForm } from "@/components/timetable/CourseForm";
 import { Button } from "@/components/ui/Button";
+import { Chevron } from "@/components/ui/Chevron";
 import { PageLoader } from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
 import { Shell } from "@/components/ui/Shell";
@@ -143,36 +144,14 @@ export default function TimetablePage() {
         </Button>
       }
     >
-      <div className="row row--between rise" style={{ marginBottom: 16 }}>
-        <div style={{ minWidth: 0 }}>
-          <div
-            style={{
-              color: "var(--ui-muted)",
-              fontSize: "0.72rem",
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-            }}
-          >
-            {t("timetable.semester.label")}
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.15rem",
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              overflowWrap: "anywhere",
-            }}
-          >
+      <div className="row row--between rise row--mb-md">
+        <div className="min-width-0">
+          <div className="type-eyebrow">{t("timetable.semester.label")}</div>
+          <div className="type-display-sm">
             {activeSemester?.name ?? t("timetable.semester.none")}
           </div>
         </div>
-        <Link
-          href="/studies/timetable/semesters"
-          className="ui-btn ui-btn--ghost"
-          style={{ minHeight: 40 }}
-        >
+        <Link href="/studies/timetable/semesters" className="ui-btn ui-btn--ghost ui-btn--compact">
           {t("timetable.semester.manage")}
         </Link>
       </div>
@@ -186,11 +165,6 @@ export default function TimetablePage() {
             aria-selected={mode === m}
             className={`segmented__item${mode === m ? " is-active" : ""}`}
             onClick={() => setMode(m)}
-            style={
-              mode === m
-                ? undefined
-                : { color: "var(--ui-muted)", border: "none", background: "transparent" }
-            }
           >
             {t(`timetable.modes.${m}`)}
           </button>
@@ -205,7 +179,7 @@ export default function TimetablePage() {
               aria-label={t("timetable.previousMonth")}
               onClick={() => setMonthAnchor(shiftMonth(monthAnchor, -1))}
             >
-              ←
+              <Chevron direction="left" />
             </Button>
             <h2 className="month-nav__label">{monthLabel}</h2>
             <Button
@@ -213,7 +187,7 @@ export default function TimetablePage() {
               aria-label={t("timetable.nextMonth")}
               onClick={() => setMonthAnchor(shiftMonth(monthAnchor, 1))}
             >
-              →
+              <Chevron direction="right" />
             </Button>
           </div>
 
@@ -266,7 +240,7 @@ export default function TimetablePage() {
                         <span
                           key={`${key}-${occ.sessionId}-${occ.startTime}`}
                           className="month-grid__class"
-                          style={{ borderLeftColor: occ.color }}
+                          style={{ ["--class-color" as string]: occ.color }}
                         >
                           <span className="month-grid__class-time">{occ.startTime}</span>
                           <span className="month-grid__class-title">{occ.title}</span>
@@ -292,11 +266,9 @@ export default function TimetablePage() {
       {mode === "courses" ? (
         activeEntries.length === 0 ? (
           <div className="empty-state">
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 600 }}>
-              {t("timetable.emptyTitle")}
-            </div>
-            <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>{t("timetable.emptyBody")}</p>
-            <div style={{ marginTop: 16 }}>
+            <div className="empty-state__title">{t("timetable.emptyTitle")}</div>
+            <p className="empty-state__body">{t("timetable.emptyBody")}</p>
+            <div className="empty-state__actions">
               <Button variant="secondary" onClick={openNewCourse}>
                 {t("timetable.add")}
               </Button>
@@ -317,12 +289,8 @@ export default function TimetablePage() {
                 <button
                   key={entry.id}
                   type="button"
-                  className="list-row"
-                  style={{
-                    borderLeft: `3px solid ${entry.color}`,
-                    width: "100%",
-                    textAlign: "start",
-                  }}
+                  className="list-row list-row--accent"
+                  style={{ ["--row-accent" as string]: entry.color }}
                   onClick={() => openEditCourse(entry.id)}
                 >
                   <div className="list-row__body">
@@ -377,17 +345,13 @@ function DayAgenda({
       <h2 className="day-agenda__title">{formatDisplayDate(selectedDate)}</h2>
 
       {dayBreaks.length > 0 ? (
-        <div className="panel" style={{ marginBottom: 12, background: "var(--ui-highlight)" }}>
-          {dayBreaks.join(" · ")}
-        </div>
+        <div className="panel panel--highlight">{dayBreaks.join(" · ")}</div>
       ) : null}
 
       {occurrences.length === 0 ? (
         <div className="empty-state">
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 600 }}>
-            {t("timetable.emptyDayTitle")}
-          </div>
-          <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>{t("timetable.emptyDayBody")}</p>
+          <div className="empty-state__title">{t("timetable.emptyDayTitle")}</div>
+          <p className="empty-state__body">{t("timetable.emptyDayBody")}</p>
         </div>
       ) : (
         <div className="card-list">
@@ -397,8 +361,8 @@ function DayAgenda({
               <button
                 key={`${occ.entryId}-${occ.sessionId}-${occ.startTime}`}
                 type="button"
-                className="list-row list-row--stack"
-                style={{ borderLeft: `3px solid ${occ.color}`, width: "100%", textAlign: "start" }}
+                className="list-row list-row--stack list-row--accent"
+                style={{ ["--row-accent" as string]: occ.color }}
                 onClick={() => onOpenCourse(occ.entryId)}
               >
                 <div className="list-row__body">
@@ -413,9 +377,7 @@ function DayAgenda({
                 </div>
                 <div className="list-row__side">
                   {occ.startTime}–{occ.endTime}
-                  <div style={{ color: "var(--ui-faint)", fontSize: "0.75rem", fontWeight: 500 }}>
-                    {occ.room || t("timetable.noRoom")}
-                  </div>
+                  <div className="list-row__room">{occ.room || t("timetable.noRoom")}</div>
                 </div>
               </button>
             );

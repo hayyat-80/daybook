@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { computeStats } from "@/services/insights/stats";
 import { useAppStore } from "@/stores/appStore";
 
+import styles from "./page.module.css";
+
 export default function SalahInsightsPage() {
   const { t } = useTranslation();
   const prayerLogs = useAppStore((s) => s.prayerLogs);
@@ -34,24 +36,9 @@ export default function SalahInsightsPage() {
     <div className="insights-grid">
       {cards.map((card, index) => (
         <div key={card.label} className={`panel rise rise-delay-${Math.min(index + 1, 3)}`}>
-          <div style={{ color: "var(--ui-muted)", fontSize: "0.78rem", fontWeight: 650 }}>
-            {card.label}
-          </div>
-          <div
-            style={{
-              marginTop: 10,
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.4rem, 4vw, 1.7rem)",
-              fontWeight: 600,
-              letterSpacing: "-0.03em",
-              overflowWrap: "anywhere",
-            }}
-          >
-            {card.value}
-          </div>
-          <div style={{ marginTop: 6, color: "var(--ui-faint)", fontSize: "0.78rem" }}>
-            {card.hint}
-          </div>
+          <div className={styles.label}>{card.label}</div>
+          <div className={styles.value}>{card.value}</div>
+          <div className={styles.hint}>{card.hint}</div>
         </div>
       ))}
     </div>

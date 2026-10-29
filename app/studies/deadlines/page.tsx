@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Field, Select, TextArea, TextInput } from "@/components/ui/Field";
+import { IconButton, TrashIcon } from "@/components/ui/IconButton";
 import { PageLoader } from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
 import { Shell } from "@/components/ui/Shell";
@@ -13,6 +14,8 @@ import { formatDisplayDate } from "@/services/timetable/recurrence";
 import { useDeadlinesStore } from "@/stores/deadlinesStore";
 import { useTimetableStore } from "@/stores/timetableStore";
 import type { DeadlineDraft, StudyDeadline } from "@/types/deadlines";
+
+import styles from "./page.module.css";
 
 function todayKey() {
   const d = new Date();
@@ -130,11 +133,9 @@ export default function DeadlinesPage() {
     >
       {items.length === 0 ? (
         <div className="empty-state">
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 600 }}>
-            {t("deadlines.emptyTitle")}
-          </div>
-          <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>{t("deadlines.emptyBody")}</p>
-          <div style={{ marginTop: 16 }}>
+          <div className="empty-state__title">{t("deadlines.emptyTitle")}</div>
+          <p className="empty-state__body">{t("deadlines.emptyBody")}</p>
+          <div className="empty-state__actions">
             <Button variant="secondary" onClick={openNew}>
               {t("deadlines.add")}
             </Button>
@@ -236,7 +237,7 @@ export default function DeadlinesPage() {
             onChange={(e) => setDraft((d) => ({ ...d, note: e.target.value }))}
           />
         </Field>
-        {error ? <p style={{ margin: "0 0 12px", color: "#BE123C" }}>{error}</p> : null}
+        {error ? <p className="text-error text-error--spaced">{error}</p> : null}
 
         {editor?.mode === "edit" && pendingDeleteId === editor.id ? (
           <div className="confirm-banner">
@@ -302,40 +303,18 @@ function DeadlineRow({
 
   return (
     <div
-      className="list-row list-row--stack"
-      style={{
-        opacity: dimmed ? 0.72 : undefined,
-        flexDirection: "column",
-        alignItems: "stretch",
-      }}
+      className={`list-row list-row--stack list-row--column${dimmed ? " list-row--dimmed" : ""}`}
     >
-      <div className="row row--between" style={{ gap: 12, width: "100%" }}>
-        <label className="ui-check" style={{ margin: 0 }} onClick={(e) => e.stopPropagation()}>
+      <div className="row row--between row--fill">
+        <label className="ui-check ui-check--flush" onClick={(e) => e.stopPropagation()}>
           <input type="checkbox" checked={item.done} onChange={onToggle} />
         </label>
-        <button
-          type="button"
-          onClick={onEdit}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            border: "none",
-            background: "transparent",
-            padding: 0,
-            textAlign: "start",
-            color: "inherit",
-            font: "inherit",
-            cursor: "pointer",
-          }}
-        >
-          <div
-            className="list-row__title"
-            style={item.done ? { textDecoration: "line-through" } : undefined}
-          >
+        <button type="button" className={styles.editTrigger} onClick={onEdit}>
+          <div className={`list-row__title${item.done ? " list-row__title--done" : ""}`}>
             {item.title}
           </div>
           <div className="list-row__meta">
-            <span style={overdue ? { color: "#BE123C", fontWeight: 650 } : undefined}>
+            <span className={overdue ? "list-row__meta--overdue" : undefined}>
               {formatDisplayDate(item.dueDate)}
               {overdue ? ` · ${t("deadlines.overdue")}` : ""}
             </span>
@@ -344,13 +323,13 @@ function DeadlineRow({
           {item.note && !item.done ? <div className="list-row__note">{item.note}</div> : null}
         </button>
         {!deleting ? (
-          <Button variant="ghost" onClick={onRequestDelete}>
-            {t("deadlines.delete")}
-          </Button>
+          <IconButton label={t("deadlines.delete")} tone="danger" onClick={onRequestDelete}>
+            <TrashIcon />
+          </IconButton>
         ) : null}
       </div>
       {deleting ? (
-        <div className="confirm-banner" style={{ marginTop: 10 }}>
+        <div className="confirm-banner confirm-banner--tight">
           <p className="confirm-banner__text">{t("deadlines.deleteConfirmBody")}</p>
           <div className="actions-bar">
             <Button variant="danger" onClick={onConfirmDelete}>

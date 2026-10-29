@@ -52,7 +52,7 @@ export default function SalahSettingsPage() {
     <div className="stack rise">
       <section className="panel">
         <h2 className="panel__title">{t("settings.location")}</h2>
-        <p style={{ margin: "0 0 14px", color: "var(--ui-muted)", lineHeight: 1.45 }}>
+        <p className="muted-copy">
           {t("settings.currentLocation")}: {formatLocationLabel(location)}
         </p>
         <Button block loading={busy} onClick={() => void refreshLocation()}>

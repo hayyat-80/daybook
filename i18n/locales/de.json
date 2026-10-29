@@ -248,6 +248,7 @@
       "title": "z. B. Codesign I",
       "room": "z. B. A10.201 (1/201)",
       "endDate": "Leer lassen wenn fortlaufend",
+      "weekday": "Vom Startdatum",
       "note": "Optionale Notiz",
       "sessionLabel": "z. B. Vorlesung, Übungsgruppe 3",
       "plan": "12.10.2026 In-presence class (A10.204)"

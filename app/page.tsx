@@ -8,18 +8,20 @@ import { APP_MODULES } from "@/modules/registry";
 import { formatLocationLabel } from "@/services/location/locationService";
 import { useAppStore } from "@/stores/appStore";
 
+import styles from "./page.module.css";
+
 export default function HubPage() {
   const { t } = useTranslation();
   const location = useAppStore((s) => s.location);
 
   return (
     <Shell brand>
-      <div className="row row--between" style={{ marginBottom: 8 }}>
+      <div className="row row--between row--mb-sm">
         <span className="hub-brand__meta">
           <span className="hub-brand__dot" />
           {formatLocationLabel(location)}
         </span>
-        <Link href="/settings" className="ui-btn ui-btn--ghost" style={{ minHeight: 40 }}>
+        <Link href="/settings" className="ui-btn ui-btn--ghost ui-btn--compact">
           {t("common.settings")}
         </Link>
       </div>
@@ -37,13 +39,7 @@ export default function HubPage() {
             className={`module-card rise-delay-${index + 1}`}
             style={{ ["--module-accent" as string]: mod.accent }}
           >
-            <div
-              className="module-card__icon"
-              style={{
-                background: `color-mix(in srgb, ${mod.accent} 16%, transparent)`,
-                color: mod.accent,
-              }}
-            >
+            <div className="module-card__icon">
               <span className={`mark mark--${mod.mark}`} aria-hidden />
             </div>
             <div className="list-row__body">
@@ -54,18 +50,7 @@ export default function HubPage() {
         ))}
       </div>
 
-      <p
-        className="rise rise-delay-3"
-        style={{
-          marginTop: 28,
-          color: "var(--ui-faint)",
-          fontSize: "0.8rem",
-          textAlign: "center",
-          fontWeight: 550,
-        }}
-      >
-        {t("hub.moreComing")}
-      </p>
+      <p className={`rise rise-delay-3 ${styles.footerNote}`}>{t("hub.moreComing")}</p>
     </Shell>
   );
 }

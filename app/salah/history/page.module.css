@@ -1,0 +1,17 @@
+.summary {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.rowBtn {
+  width: 100%;
+  color: var(--ui-text);
+  text-align: start;
+}
+
+.rowTitle {
+  flex: 1;
+}

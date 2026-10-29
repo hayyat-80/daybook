@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import { Chevron } from "@/components/ui/Chevron";
 import { useIsClient } from "@/hooks/useIsClient";
 import { popoverStyle, usePopoverPosition } from "@/hooks/usePopoverPosition";
 import {
@@ -105,7 +106,7 @@ export function MultiDatePicker({ value, onChange, todayKey }: Props) {
                 aria-label={t("timetable.previousMonth")}
                 onClick={() => setMonthAnchor(shiftMonth(monthAnchor, -1))}
               >
-                ←
+                <Chevron direction="left" />
               </Button>
               <h3 className="month-nav__label">{monthLabel}</h3>
               <Button
@@ -113,7 +114,7 @@ export function MultiDatePicker({ value, onChange, todayKey }: Props) {
                 aria-label={t("timetable.nextMonth")}
                 onClick={() => setMonthAnchor(shiftMonth(monthAnchor, 1))}
               >
-                →
+                <Chevron direction="right" />
               </Button>
             </div>
 
@@ -166,9 +167,7 @@ export function MultiDatePicker({ value, onChange, todayKey }: Props) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <span>{triggerLabel}</span>
-        <span className="multi-date__chevron" aria-hidden>
-          {open ? "▴" : "▾"}
-        </span>
+        <Chevron open={open} className="multi-date__chevron" />
       </button>
       {panel}
 

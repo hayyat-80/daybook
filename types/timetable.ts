@@ -120,7 +120,7 @@ export type SessionDraft = {
   endTime: string;
   recurrence: RecurrenceKind;
   dates: string[];
-  weekday: Weekday;
+  weekday: Weekday | null;
   startDate: string;
   endDate: string;
   enabled: boolean;

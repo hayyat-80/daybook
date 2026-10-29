@@ -1,0 +1,26 @@
+.check {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 2px solid var(--ui-check-pending);
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  transition: transform 140ms var(--ease-out);
+}
+
+.check[data-status="prayed"] {
+  border-color: var(--ui-check);
+  background: var(--ui-check);
+}
+
+.statusBtn {
+  border: none;
+  background: transparent;
+  color: var(--ui-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
