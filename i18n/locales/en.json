@@ -11,10 +11,55 @@
         "title": "Salah",
         "subtitle": "Prayer times, tracking, and reminders"
       },
+      "studies": {
+        "title": "Studies",
+        "subtitle": "Timetable, deadlines, and course work"
+      }
+    }
+  },
+  "studies": {
+    "title": "Studies",
+    "subtitle": "Classes and deadlines in one place.",
+    "modules": {
       "timetable": {
         "title": "Timetable",
-        "subtitle": "Classes, rooms, and weekly schedule"
+        "subtitle": "Courses, rooms, and weekly schedule"
+      },
+      "deadlines": {
+        "title": "Deadlines",
+        "subtitle": "Assignments, exams, and due dates"
       }
+    }
+  },
+  "deadlines": {
+    "title": "Deadlines",
+    "subtitle": "Track what is due for your studies.",
+    "add": "Add",
+    "addTitle": "New deadline",
+    "editTitle": "Edit deadline",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "deleteConfirmBody": "This deadline will be removed.",
+    "open": "Open",
+    "done": "Done",
+    "overdue": "Overdue",
+    "noCourse": "No course",
+    "emptyTitle": "No deadlines yet",
+    "emptyBody": "Add an assignment, exam, or any due date.",
+    "fields": {
+      "title": "Title",
+      "dueDate": "Due date",
+      "courseOptional": "Course (optional)",
+      "note": "Note"
+    },
+    "placeholders": {
+      "title": "e.g. Codesign report",
+      "note": "Optional details"
+    },
+    "errors": {
+      "titleRequired": "Please enter a title.",
+      "dateRequired": "Please pick a due date."
     }
   },
   "common": {
@@ -24,6 +69,8 @@
     "history": "History",
     "insights": "Insights",
     "settings": "Settings",
+    "loading": "Loading…",
+    "saving": "Saving…",
     "completed": "completed",
     "remaining": "remaining",
     "timeHasArrived": "Time has arrived",
@@ -99,6 +146,7 @@
       "active": "Active",
       "courseCount": "{{count}} courses",
       "edit": "Edit",
+      "delete": "Delete",
       "addTitle": "New semester",
       "editTitle": "Edit semester",
       "create": "Create semester",

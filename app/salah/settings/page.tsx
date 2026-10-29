@@ -55,7 +55,7 @@ export default function SalahSettingsPage() {
         <p style={{ margin: "0 0 14px", color: "var(--ui-muted)", lineHeight: 1.45 }}>
           {t("settings.currentLocation")}: {formatLocationLabel(location)}
         </p>
-        <Button block disabled={busy} onClick={() => void refreshLocation()}>
+        <Button block loading={busy} onClick={() => void refreshLocation()}>
           {t("settings.autoLocation")}
         </Button>
       </section>

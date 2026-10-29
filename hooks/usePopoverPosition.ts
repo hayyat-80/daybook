@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  type CSSProperties,
-  type RefObject,
-  useCallback,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { type CSSProperties, type RefObject, useCallback, useLayoutEffect, useState } from "react";
 
 export type PopoverCoords = {
   left: number;
@@ -20,17 +14,26 @@ export type PopoverCoords = {
 type Options = {
   /** Preferred minimum panel width in px */
   minWidth?: number;
+  /** Cap width so wide form fields don't stretch the panel */
+  maxWidth?: number;
   /** Gap between trigger and panel */
   gap?: number;
   /** Viewport edge padding */
   padding?: number;
+  /** Horizontal alignment to the trigger */
+  align?: "start" | "center" | "end";
 };
 
 const DEFAULTS: Required<Options> = {
   minWidth: 280,
+  maxWidth: 340,
   gap: 6,
   padding: 10,
+  align: "start",
 };
+
+/** Comfortable height before we prefer flipping above the field. */
+const MIN_COMFORTABLE = 260;
 
 export function usePopoverPosition(
   open: boolean,
@@ -38,7 +41,7 @@ export function usePopoverPosition(
   panelRef: RefObject<HTMLElement | null>,
   options: Options = {},
 ): PopoverCoords | null {
-  const { minWidth, gap, padding } = { ...DEFAULTS, ...options };
+  const { minWidth, maxWidth, gap, padding, align } = { ...DEFAULTS, ...options };
   const [coords, setCoords] = useState<PopoverCoords | null>(null);
 
   const update = useCallback(() => {
@@ -48,24 +51,29 @@ export function usePopoverPosition(
     const rect = trigger.getBoundingClientRect();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const width = Math.min(Math.max(rect.width, minWidth), vw - padding * 2);
+    const width = Math.min(Math.max(minWidth, Math.min(rect.width, maxWidth)), vw - padding * 2);
 
-    let left = rect.left + (rect.width - width) / 2;
+    let left = rect.left;
+    if (align === "center") left = rect.left + (rect.width - width) / 2;
+    if (align === "end") left = rect.right - width;
     if (left + width > vw - padding) left = vw - padding - width;
     if (left < padding) left = padding;
 
     const spaceBelow = vh - rect.bottom - padding;
     const spaceAbove = rect.top - padding;
-    const panelHeight = panelRef.current?.offsetHeight ?? 320;
-    const fitsBelow = spaceBelow >= Math.min(panelHeight, 240) || spaceBelow >= spaceAbove;
+    const panelHeight = panelRef.current?.offsetHeight || MIN_COMFORTABLE;
+    const needed = Math.min(panelHeight, MIN_COMFORTABLE);
 
-    if (fitsBelow) {
+    // Prefer below only when it actually fits; otherwise open above the field.
+    const placeBelow = spaceBelow >= needed;
+
+    if (placeBelow) {
       setCoords({
         placement: "below",
         top: rect.bottom + gap,
         left,
         width,
-        maxHeight: Math.max(160, spaceBelow),
+        maxHeight: Math.min(380, Math.max(160, spaceBelow)),
       });
       return;
     }
@@ -75,21 +83,20 @@ export function usePopoverPosition(
       bottom: vh - rect.top + gap,
       left,
       width,
-      maxHeight: Math.max(160, spaceAbove),
+      maxHeight: Math.min(380, Math.max(160, spaceAbove)),
     });
-  }, [gap, minWidth, padding, panelRef, triggerRef]);
+  }, [align, gap, maxWidth, minWidth, padding, panelRef, triggerRef]);
 
   useLayoutEffect(() => {
     if (!open) return;
 
+    triggerRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
     update();
     const frame = window.requestAnimationFrame(update);
 
     const panel = panelRef.current;
     const observer =
-      panel && typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => update())
-        : null;
+      panel && typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => update()) : null;
     if (panel && observer) observer.observe(panel);
 
     window.addEventListener("resize", update);
@@ -100,7 +107,7 @@ export function usePopoverPosition(
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, panelRef, update]);
+  }, [open, panelRef, triggerRef, update]);
 
   return open ? coords : null;
 }

@@ -186,4 +186,3 @@ export function breaksOnDate(
 ): SemesterBreak[] {
   return (breaks ?? []).filter((b) => b.startDate <= dateKey && dateKey <= b.endDate);
 }
-

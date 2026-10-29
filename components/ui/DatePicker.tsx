@@ -36,13 +36,7 @@ function toDateKey(value: string): string | null {
   return parseFlexibleDate(trimmed);
 }
 
-export function DatePicker({
-  value,
-  onChange,
-  todayKey,
-  placeholder,
-  allowClear = false,
-}: Props) {
+export function DatePicker({ value, onChange, todayKey, placeholder, allowClear = false }: Props) {
   const { t, i18n } = useTranslation();
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -87,14 +81,17 @@ export function DatePicker({
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
     }
 
     document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown, true);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown, true);
     };
   }, [open]);
 

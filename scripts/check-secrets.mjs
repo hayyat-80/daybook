@@ -24,8 +24,7 @@ const BLOCKED_PATH =
 const SECRET_LINE =
   /^\+.*(?:DATABASE_AUTH_TOKEN|API_SECRET|NEXT_PUBLIC_API_SECRET|AUTH_TOKEN|PRIVATE_KEY|AWS_SECRET|GITHUB_TOKEN)\s*=\s*(?!change-me|your_|your-|xxx|placeholder|example|<).+/im;
 
-const JWT_OR_LONG =
-  /^\+.*\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/m;
+const JWT_OR_LONG = /^\+.*\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/m;
 
 const HEX_SECRET = /^\+.*(?:SECRET|TOKEN|PASSWORD)\s*=\s*[a-f0-9]{32,}\s*$/im;
 

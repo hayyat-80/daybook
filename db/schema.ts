@@ -89,3 +89,15 @@ export const courseSessions = sqliteTable("course_sessions", {
   endDate: text("end_date"),
   enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
 });
+
+/** Assignments / exams / other study deadlines. */
+export const studyDeadlines = sqliteTable("study_deadlines", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  dueDate: text("due_date").notNull(),
+  note: text("note"),
+  done: integer("done", { mode: "boolean" }).notNull().default(false),
+  courseId: text("course_id"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

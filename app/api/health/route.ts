@@ -18,6 +18,7 @@ export async function GET() {
         "semester_breaks",
         "courses",
         "course_sessions",
+        "study_deadlines",
       ],
     });
   } catch (error) {

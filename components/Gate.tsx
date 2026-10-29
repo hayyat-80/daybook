@@ -2,36 +2,37 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
+import { PageLoader } from "@/components/ui/Loader";
 import { useAppStore } from "@/stores/appStore";
+import { useDeadlinesStore } from "@/stores/deadlinesStore";
+import { useTimetableStore } from "@/stores/timetableStore";
 
 export function Gate({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useAppStore((s) => s.hydrated);
+  const timetableHydrated = useTimetableStore((s) => s.hydrated);
+  const deadlinesHydrated = useDeadlinesStore((s) => s.hydrated);
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
+  const ready = hydrated && timetableHydrated && deadlinesHydrated;
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!ready) return;
     if (!onboardingComplete && pathname !== "/onboarding") {
       router.replace("/onboarding");
     }
     if (onboardingComplete && pathname === "/onboarding") {
       router.replace("/");
     }
-  }, [hydrated, onboardingComplete, pathname, router]);
+  }, [ready, onboardingComplete, pathname, router]);
 
-  if (!hydrated) {
+  if (!ready) {
     return (
-      <div className="app-shell" style={{ display: "grid", placeItems: "center" }}>
-        <div className="hub-brand" style={{ textAlign: "center", margin: 0 }}>
-          <p className="hub-brand__name" style={{ fontSize: "clamp(2rem, 8vw, 3rem)" }}>
-            Daybook
-          </p>
-          <p className="hub-brand__tag" style={{ marginInline: "auto" }}>
-            Loading…
-          </p>
-        </div>
+      <div className="app-shell">
+        <PageLoader brand label={t("common.loading")} />
       </div>
     );
   }

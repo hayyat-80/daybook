@@ -11,10 +11,55 @@
         "title": "Salah",
         "subtitle": "Gebetszeiten, Tracking und Erinnerungen"
       },
+      "studies": {
+        "title": "Studium",
+        "subtitle": "Stundenplan, Fristen und Kursarbeit"
+      }
+    }
+  },
+  "studies": {
+    "title": "Studium",
+    "subtitle": "Kurse und Fristen an einem Ort.",
+    "modules": {
       "timetable": {
         "title": "Stundenplan",
         "subtitle": "Kurse, Räume und Wochenplan"
+      },
+      "deadlines": {
+        "title": "Fristen",
+        "subtitle": "Abgaben, Prüfungen und Termine"
       }
+    }
+  },
+  "deadlines": {
+    "title": "Fristen",
+    "subtitle": "Behalte den Überblick über Abgaben und Prüfungen.",
+    "add": "Hinzufügen",
+    "addTitle": "Neue Frist",
+    "editTitle": "Frist bearbeiten",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "deleteConfirmBody": "Diese Frist wird entfernt.",
+    "open": "Offen",
+    "done": "Erledigt",
+    "overdue": "Überfällig",
+    "noCourse": "Kein Kurs",
+    "emptyTitle": "Noch keine Fristen",
+    "emptyBody": "Füge eine Abgabe, Prüfung oder einen Termin hinzu.",
+    "fields": {
+      "title": "Titel",
+      "dueDate": "Fällig am",
+      "courseOptional": "Kurs (optional)",
+      "note": "Notiz"
+    },
+    "placeholders": {
+      "title": "z. B. Codesign Bericht",
+      "note": "Optionale Details"
+    },
+    "errors": {
+      "titleRequired": "Bitte einen Titel eingeben.",
+      "dateRequired": "Bitte ein Fälligkeitsdatum wählen."
     }
   },
   "common": {
@@ -24,6 +69,8 @@
     "history": "Verlauf",
     "insights": "Einblicke",
     "settings": "Einstellungen",
+    "loading": "Laden…",
+    "saving": "Speichern…",
     "completed": "abgeschlossen",
     "remaining": "verbleibend",
     "timeHasArrived": "Gebetszeit ist da",
@@ -99,6 +146,7 @@
       "active": "Aktiv",
       "courseCount": "{{count}} Kurse",
       "edit": "Bearbeiten",
+      "delete": "Löschen",
       "addTitle": "Neues Semester",
       "editTitle": "Semester bearbeiten",
       "create": "Semester anlegen",

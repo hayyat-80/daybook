@@ -11,10 +11,55 @@
         "title": "الصلاة",
         "subtitle": "أوقات الصلاة والتتبع والتذكيرات"
       },
-      "timetable": {
-        "title": "الجدول الدراسي",
-        "subtitle": "المحاضرات والقاعات والجدول الأسبوعي"
+      "studies": {
+        "title": "الدراسة",
+        "subtitle": "الجدول والمواعيد والعمل الدراسي"
       }
+    }
+  },
+  "studies": {
+    "title": "الدراسة",
+    "subtitle": "المقررات والمواعيد في مكان واحد.",
+    "modules": {
+      "timetable": {
+        "title": "الجدول",
+        "subtitle": "المقررات والقاعات والجدول الأسبوعي"
+      },
+      "deadlines": {
+        "title": "المواعيد النهائية",
+        "subtitle": "الواجبات والاختبارات وتواريخ الاستحقاق"
+      }
+    }
+  },
+  "deadlines": {
+    "title": "المواعيد النهائية",
+    "subtitle": "تابع ما يستحق التسليم في دراستك.",
+    "add": "إضافة",
+    "addTitle": "موعد جديد",
+    "editTitle": "تعديل الموعد",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "deleteConfirmBody": "سيتم حذف هذا الموعد.",
+    "open": "مفتوحة",
+    "done": "منجزة",
+    "overdue": "متأخرة",
+    "noCourse": "بدون مقرر",
+    "emptyTitle": "لا مواعيد بعد",
+    "emptyBody": "أضف واجبًا أو اختبارًا أو أي موعد استحقاق.",
+    "fields": {
+      "title": "العنوان",
+      "dueDate": "تاريخ الاستحقاق",
+      "courseOptional": "المقرر (اختياري)",
+      "note": "ملاحظة"
+    },
+    "placeholders": {
+      "title": "مثال: تقرير Codesign",
+      "note": "تفاصيل اختيارية"
+    },
+    "errors": {
+      "titleRequired": "أدخل عنوانًا.",
+      "dateRequired": "اختر تاريخ الاستحقاق."
     }
   },
   "common": {
@@ -24,6 +69,8 @@
     "history": "السجل",
     "insights": "رؤى",
     "settings": "الإعدادات",
+    "loading": "جارٍ التحميل…",
+    "saving": "جارٍ الحفظ…",
     "completed": "مكتمل",
     "remaining": "متبقٍ",
     "timeHasArrived": "حان وقت الصلاة",
@@ -99,6 +146,7 @@
       "active": "الحالي",
       "courseCount": "{{count}} مقررات",
       "edit": "تعديل",
+      "delete": "حذف",
       "addTitle": "فصل جديد",
       "editTitle": "تعديل الفصل",
       "create": "إنشاء فصل",

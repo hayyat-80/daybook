@@ -41,6 +41,7 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function updateSession(index: number, patch: Partial<TimetableDraft["sessions"][number]>) {
     setDraft((prev) => ({
@@ -246,7 +247,9 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
           <div style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 600 }}>
             {t("timetable.noScheduleTitle")}
           </div>
-          <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>{t("timetable.noScheduleBody")}</p>
+          <p style={{ color: "var(--ui-muted)", marginBottom: 0 }}>
+            {t("timetable.noScheduleBody")}
+          </p>
         </div>
       ) : null}
 
@@ -420,25 +423,46 @@ export function CourseForm({ initial, onSave, onCancel, onDelete }: Props) {
         <p style={{ margin: 0, color: "#BE123C", ...typography.footnote }}>{error}</p>
       ) : null}
 
-      <div className="actions-bar">
-        <Button disabled={busy} onClick={() => void submit()}>
-          {t("timetable.save")}
-        </Button>
-        <Button variant="secondary" disabled={busy} onClick={onCancel}>
-          {t("timetable.cancel")}
-        </Button>
-        {onDelete ? (
-          <Button
-            variant="danger"
-            disabled={busy}
-            onClick={() => {
-              if (window.confirm(t("timetable.deleteConfirmBody"))) void onDelete();
-            }}
-          >
-            {t("timetable.delete")}
+      {confirmDelete && onDelete ? (
+        <div className="confirm-banner">
+          <p className="confirm-banner__text">{t("timetable.deleteConfirmBody")}</p>
+          <div className="actions-bar">
+            <Button
+              variant="danger"
+              loading={busy}
+              onClick={() => {
+                void (async () => {
+                  setBusy(true);
+                  try {
+                    await onDelete();
+                  } finally {
+                    setBusy(false);
+                  }
+                })();
+              }}
+            >
+              {t("timetable.delete")}
+            </Button>
+            <Button variant="secondary" disabled={busy} onClick={() => setConfirmDelete(false)}>
+              {t("timetable.cancel")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="actions-bar actions-bar--form">
+          <Button loading={busy} onClick={() => void submit()}>
+            {busy ? t("common.saving") : t("timetable.save")}
           </Button>
-        ) : null}
-      </div>
+          <Button variant="secondary" disabled={busy} onClick={onCancel}>
+            {t("timetable.cancel")}
+          </Button>
+          {onDelete ? (
+            <Button variant="danger" disabled={busy} onClick={() => setConfirmDelete(true)}>
+              {t("timetable.delete")}
+            </Button>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

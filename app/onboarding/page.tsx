@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
+import { Spinner } from "@/components/ui/Loader";
 import { getCurrentLocation } from "@/services/location/locationService";
 import { useAppStore } from "@/stores/appStore";
 import { DEFAULT_LOCATION } from "@/types/settings";
@@ -68,8 +69,10 @@ export default function OnboardingPage() {
                 type="button"
                 className="onboarding__btn onboarding__btn--primary"
                 disabled={busy}
+                aria-busy={busy || undefined}
                 onClick={() => void finish(true)}
               >
+                {busy ? <Spinner size="sm" /> : null}
                 {t("onboarding.enableLocation")}
               </button>
               <button

@@ -1,5 +1,6 @@
 import { apiGet, apiPut, isRemoteDbEnabled } from "@/services/persistence/remoteApi";
 import type { TimetableSnapshot } from "@/db/repositories/timetable";
+import type { StudyDeadline } from "@/types/deadlines";
 import type { DailyPrayerLog } from "@/types/prayer";
 import type { AppSettings, StoredLocation } from "@/types/settings";
 
@@ -147,4 +148,28 @@ export async function saveTimetable(timetable: TimetableSnapshot): Promise<void>
     }
   }
   localSet("timetable", timetable);
+}
+
+export async function loadDeadlines(): Promise<StudyDeadline[] | null> {
+  if (isRemoteDbEnabled()) {
+    try {
+      const data = await apiGet<{ deadlines: StudyDeadline[] }>("/api/deadlines");
+      return data.deadlines;
+    } catch {
+      return localGet<StudyDeadline[]>("study_deadlines");
+    }
+  }
+  return localGet<StudyDeadline[]>("study_deadlines");
+}
+
+export async function saveDeadlines(deadlines: StudyDeadline[]): Promise<void> {
+  if (isRemoteDbEnabled()) {
+    try {
+      await apiPut("/api/deadlines", { deadlines });
+      return;
+    } catch {
+      // fall through
+    }
+  }
+  localSet("study_deadlines", deadlines);
 }

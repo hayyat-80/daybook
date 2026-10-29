@@ -110,6 +110,16 @@ const DDL = [
     end_date TEXT,
     enabled INTEGER NOT NULL DEFAULT 1
   )`,
+  `CREATE TABLE IF NOT EXISTS study_deadlines (
+    id TEXT PRIMARY KEY NOT NULL,
+    title TEXT NOT NULL,
+    due_date TEXT NOT NULL,
+    note TEXT,
+    done INTEGER NOT NULL DEFAULT 0,
+    course_id TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
   `DROP TABLE IF EXISTS kv_store`,
 ];
 
