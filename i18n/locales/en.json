@@ -292,21 +292,5 @@
       "datesRequired": "Add at least one date.",
       "sessionLabelRequired": "Each session needs a name."
     }
-  },
-  "onboarding": {
-    "slide1Title": "Never miss a prayer.",
-    "slide1Body": "A calm companion for your daily salah.",
-    "slide2Title": "Accurate prayer times",
-    "slide2Body": "Get prayer times based on your location.",
-    "slide3Title": "Build consistency",
-    "slide3Body": "Track your prayers gently, without pressure.",
-    "locationTitle": "Choose your location",
-    "locationBody": "Your location is used to calculate accurate prayer times.",
-    "methodTitle": "Calculation method",
-    "methodBody": "You can change this anytime in Settings.",
-    "enableLocation": "Use my location",
-    "continueDefault": "Continue with Chemnitz",
-    "getStarted": "Get started",
-    "next": "Next"
   }
 }

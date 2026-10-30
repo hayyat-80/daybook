@@ -42,8 +42,6 @@ export function AppNav() {
   const { t } = useTranslation();
   const pathname = usePathname();
 
-  if (pathname === "/onboarding") return null;
-
   return (
     <>
       <nav className="app-nav app-nav--desktop" aria-label={t("nav.label")}>

@@ -292,21 +292,5 @@
       "datesRequired": "أضف تاريخًا واحدًا على الأقل.",
       "sessionLabelRequired": "كل جلسة تحتاج اسمًا."
     }
-  },
-  "onboarding": {
-    "slide1Title": "لا تفوّت صلاة.",
-    "slide1Body": "رفيق هادئ لصلاتك اليومية.",
-    "slide2Title": "أوقات صلاة دقيقة",
-    "slide2Body": "أوقات الصلاة حسب موقعك.",
-    "slide3Title": "ابنِ الانتظام",
-    "slide3Body": "تتبّع صلواتك بلطف، دون ضغط.",
-    "locationTitle": "اختر موقعك",
-    "locationBody": "يُستخدم موقعك لحساب أوقات الصلاة بدقة.",
-    "methodTitle": "طريقة الحساب",
-    "methodBody": "يمكنك تغييرها في أي وقت من الإعدادات.",
-    "enableLocation": "استخدم موقعي",
-    "continueDefault": "المتابعة مع Chemnitz",
-    "getStarted": "ابدأ",
-    "next": "التالي"
   }
 }

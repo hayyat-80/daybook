@@ -3,11 +3,9 @@ import { create } from "zustand";
 import { canPersistToRemote } from "@/services/persistence/loadResult";
 import {
   loadLocation,
-  loadOnboardingComplete,
   loadPrayerLogs,
   loadSettings,
   saveLocation,
-  saveOnboardingComplete,
   savePrayerLogs,
   saveSettings,
 } from "@/services/persistence/storage";
@@ -24,13 +22,11 @@ type AppState = {
   hydrated: boolean;
   canPersistPrayerLogs: boolean;
   knownPrayerDayCount: number;
-  onboardingComplete: boolean;
   settings: AppSettings;
   location: StoredLocation;
   prayerLogs: Record<string, DailyPrayerLog>;
   toastMessage: string | null;
   hydrate: () => Promise<void>;
-  completeOnboarding: (location?: StoredLocation) => Promise<void>;
   setSettings: (patch: Partial<AppSettings>) => Promise<void>;
   setLocation: (location: StoredLocation) => Promise<void>;
   setPrayerStatus: (dateKey: string, prayerId: PrayerId, status: PrayerStatus) => Promise<void>;
@@ -44,18 +40,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   hydrated: false,
   canPersistPrayerLogs: false,
   knownPrayerDayCount: 0,
-  onboardingComplete: false,
   settings: DEFAULT_SETTINGS,
   location: DEFAULT_LOCATION,
   prayerLogs: {},
   toastMessage: null,
 
   hydrate: async () => {
-    const [settings, location, prayerLoaded, onboardingComplete] = await Promise.all([
+    const [settings, location, prayerLoaded] = await Promise.all([
       loadSettings(),
       loadLocation(),
       loadPrayerLogs(),
-      loadOnboardingComplete(),
     ]);
 
     const prayerLogs = prayerLoaded?.data ?? {};
@@ -70,14 +64,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       settings: settings ?? DEFAULT_SETTINGS,
       location: location ?? DEFAULT_LOCATION,
       prayerLogs,
-      onboardingComplete: onboardingComplete ?? false,
     });
-  },
-
-  completeOnboarding: async (location) => {
-    const nextLocation = location ?? get().location;
-    set({ onboardingComplete: true, location: nextLocation });
-    await Promise.all([saveOnboardingComplete(true), saveLocation(nextLocation)]);
   },
 
   setSettings: async (patch) => {

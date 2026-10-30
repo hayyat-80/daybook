@@ -102,38 +102,6 @@ export async function savePrayerLogs(
   localSet("prayer_logs", prayerLogs);
 }
 
-export async function loadOnboardingComplete(): Promise<boolean | null> {
-  if (isRemoteDbEnabled()) {
-    try {
-      const data = await apiGet<{ state: { onboardingComplete: boolean } }>("/api/app-state");
-      return data.state.onboardingComplete;
-    } catch {
-      return localGet<boolean>("onboarding_complete");
-    }
-  }
-  return localGet<boolean>("onboarding_complete");
-}
-
-export async function saveOnboardingComplete(onboardingComplete: boolean): Promise<void> {
-  if (isRemoteDbEnabled()) {
-    try {
-      const current = await apiGet<{
-        state: { onboardingComplete: boolean; activeSemesterId: string | null };
-      }>("/api/app-state");
-      await apiPut("/api/app-state", {
-        state: {
-          onboardingComplete,
-          activeSemesterId: current.state.activeSemesterId,
-        },
-      });
-      return;
-    } catch {
-      // fall through
-    }
-  }
-  localSet("onboarding_complete", onboardingComplete);
-}
-
 export async function loadTimetable(): Promise<LoadResult<TimetableSnapshot> | null> {
   if (isRemoteDbEnabled()) {
     try {

@@ -292,21 +292,5 @@
       "datesRequired": "Mindestens ein Datum hinzufügen.",
       "sessionLabelRequired": "Jede Sitzung braucht einen Namen."
     }
-  },
-  "onboarding": {
-    "slide1Title": "Verpasse kein Gebet.",
-    "slide1Body": "Ein ruhiger Begleiter für dein tägliches Salah.",
-    "slide2Title": "Genaue Gebetszeiten",
-    "slide2Body": "Gebetszeiten basierend auf deinem Standort.",
-    "slide3Title": "Kontinuität aufbauen",
-    "slide3Body": "Erfasse deine Gebete sanft, ohne Druck.",
-    "locationTitle": "Standort wählen",
-    "locationBody": "Dein Standort wird zur Berechnung genauer Gebetszeiten verwendet.",
-    "methodTitle": "Berechnungsmethode",
-    "methodBody": "Du kannst dies jederzeit in den Einstellungen ändern.",
-    "enableLocation": "Meinen Standort verwenden",
-    "continueDefault": "Mit Chemnitz fortfahren",
-    "getStarted": "Loslegen",
-    "next": "Weiter"
   }
 }
