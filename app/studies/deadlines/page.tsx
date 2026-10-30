@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Field, Select, TextArea, TextInput } from "@/components/ui/Field";
-import { IconButton, TrashIcon } from "@/components/ui/IconButton";
+import { EditIcon, IconButton, PlusIcon, TrashIcon } from "@/components/ui/IconButton";
 import { PageLoader } from "@/components/ui/Loader";
 import { Modal } from "@/components/ui/Modal";
-import { Shell } from "@/components/ui/Shell";
 import { formatDisplayDate } from "@/services/timetable/recurrence";
 import { useDeadlinesStore } from "@/stores/deadlinesStore";
 import { useTimetableStore } from "@/stores/timetableStore";
@@ -61,6 +61,15 @@ export default function DeadlinesPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const courseOptions = courses.filter((c) => c.semesterId === activeSemesterId);
+  const courseIds = useMemo(
+    () => new Set(courseOptions.map((c) => c.id)),
+    [courseOptions],
+  );
+  const scopedItems = useMemo(
+    () =>
+      items.filter((item) => !item.courseId || courseIds.has(item.courseId)),
+    [items, courseIds],
+  );
 
   function openNew() {
     setPendingDeleteId(null);
@@ -103,42 +112,39 @@ export default function DeadlinesPage() {
 
   async function confirmDelete() {
     if (!pendingDeleteId) return;
-    await remove(pendingDeleteId);
-    setPendingDeleteId(null);
-    if (editor?.mode === "edit" && editor.id === pendingDeleteId) closeEditor();
+    setBusy(true);
+    try {
+      await remove(pendingDeleteId);
+      if (editor?.mode === "edit" && editor.id === pendingDeleteId) closeEditor();
+      setPendingDeleteId(null);
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!hydrated) {
-    return (
-      <Shell title={t("deadlines.title")} backHref="/studies" backLabel={t("studies.title")}>
-        <PageLoader label={t("common.loading")} />
-      </Shell>
-    );
+    return <PageLoader label={t("common.loading")} />;
   }
 
-  const open = items.filter((d) => !d.done);
-  const done = items.filter((d) => d.done);
+  const open = scopedItems.filter((d) => !d.done);
+  const done = scopedItems.filter((d) => d.done);
 
   return (
-    <Shell
-      title={t("deadlines.title")}
-      subtitle={t("deadlines.subtitle")}
-      backHref="/studies"
-      backLabel={t("studies.title")}
-      action={
-        <Button variant="secondary" onClick={openNew}>
-          {t("deadlines.add")}
-        </Button>
-      }
-    >
-      {items.length === 0 ? (
+    <>
+      <div className="list-toolbar rise">
+        <p className="list-toolbar__copy">{t("deadlines.subtitle")}</p>
+        <IconButton label={t("deadlines.add")} onClick={openNew}>
+          <PlusIcon />
+        </IconButton>
+      </div>
+      {scopedItems.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__title">{t("deadlines.emptyTitle")}</div>
           <p className="empty-state__body">{t("deadlines.emptyBody")}</p>
           <div className="empty-state__actions">
-            <Button variant="secondary" onClick={openNew}>
-              {t("deadlines.add")}
-            </Button>
+            <IconButton label={t("deadlines.add")} onClick={openNew}>
+              <PlusIcon />
+            </IconButton>
           </div>
         </div>
       ) : (
@@ -153,15 +159,9 @@ export default function DeadlinesPage() {
                     item={item}
                     today={today}
                     courseTitle={courses.find((c) => c.id === item.courseId)?.title}
-                    deleting={pendingDeleteId === item.id}
                     onToggle={() => void toggleDone(item.id)}
                     onEdit={() => openEdit(item)}
-                    onRequestDelete={() => {
-                      closeEditor();
-                      setPendingDeleteId(item.id);
-                    }}
-                    onConfirmDelete={() => void confirmDelete()}
-                    onCancelDelete={() => setPendingDeleteId(null)}
+                    onRequestDelete={() => setPendingDeleteId(item.id)}
                   />
                 ))}
               </div>
@@ -178,16 +178,10 @@ export default function DeadlinesPage() {
                     item={item}
                     today={today}
                     courseTitle={courses.find((c) => c.id === item.courseId)?.title}
-                    deleting={pendingDeleteId === item.id}
                     dimmed
                     onToggle={() => void toggleDone(item.id)}
                     onEdit={() => openEdit(item)}
-                    onRequestDelete={() => {
-                      closeEditor();
-                      setPendingDeleteId(item.id);
-                    }}
-                    onConfirmDelete={() => void confirmDelete()}
-                    onCancelDelete={() => setPendingDeleteId(null)}
+                    onRequestDelete={() => setPendingDeleteId(item.id)}
                   />
                 ))}
               </div>
@@ -239,39 +233,36 @@ export default function DeadlinesPage() {
         </Field>
         {error ? <p className="text-error text-error--spaced">{error}</p> : null}
 
-        {editor?.mode === "edit" && pendingDeleteId === editor.id ? (
-          <div className="confirm-banner">
-            <p className="confirm-banner__text">{t("deadlines.deleteConfirmBody")}</p>
-            <div className="actions-bar">
-              <Button variant="danger" loading={busy} onClick={() => void confirmDelete()}>
-                {t("deadlines.delete")}
-              </Button>
-              <Button variant="secondary" disabled={busy} onClick={() => setPendingDeleteId(null)}>
-                {t("deadlines.cancel")}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="actions-bar actions-bar--form">
-            <Button loading={busy} onClick={() => void submit()}>
-              {busy ? t("common.saving") : t("deadlines.save")}
+        <div className="actions-bar actions-bar--form">
+          <Button loading={busy} onClick={() => void submit()}>
+            {busy ? t("common.saving") : t("deadlines.save")}
+          </Button>
+          <Button variant="secondary" disabled={busy} onClick={closeEditor}>
+            {t("deadlines.cancel")}
+          </Button>
+          {editor?.mode === "edit" ? (
+            <Button
+              variant="danger"
+              disabled={busy}
+              onClick={() => setPendingDeleteId(editor.id)}
+            >
+              {t("deadlines.delete")}
             </Button>
-            <Button variant="secondary" disabled={busy} onClick={closeEditor}>
-              {t("deadlines.cancel")}
-            </Button>
-            {editor?.mode === "edit" ? (
-              <Button
-                variant="danger"
-                disabled={busy}
-                onClick={() => setPendingDeleteId(editor.id)}
-              >
-                {t("deadlines.delete")}
-              </Button>
-            ) : null}
-          </div>
-        )}
+          ) : null}
+        </div>
       </Modal>
-    </Shell>
+
+      <ConfirmModal
+        open={pendingDeleteId !== null}
+        title={t("deadlines.delete")}
+        body={t("deadlines.deleteConfirmBody")}
+        confirmLabel={t("deadlines.delete")}
+        cancelLabel={t("deadlines.cancel")}
+        busy={busy}
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => setPendingDeleteId(null)}
+      />
+    </>
   );
 }
 
@@ -279,24 +270,18 @@ function DeadlineRow({
   item,
   today,
   courseTitle,
-  deleting,
   dimmed = false,
   onToggle,
   onEdit,
   onRequestDelete,
-  onConfirmDelete,
-  onCancelDelete,
 }: Readonly<{
   item: StudyDeadline;
   today: string;
   courseTitle?: string;
-  deleting: boolean;
   dimmed?: boolean;
   onToggle: () => void;
   onEdit: () => void;
   onRequestDelete: () => void;
-  onConfirmDelete: () => void;
-  onCancelDelete: () => void;
 }>) {
   const { t } = useTranslation();
   const overdue = !item.done && item.dueDate < today;
@@ -305,7 +290,7 @@ function DeadlineRow({
     <div
       className={`list-row list-row--stack list-row--column${dimmed ? " list-row--dimmed" : ""}`}
     >
-      <div className="row row--between row--fill">
+      <div className="list-row__main">
         <label className="ui-check ui-check--flush" onClick={(e) => e.stopPropagation()}>
           <input type="checkbox" checked={item.done} onChange={onToggle} />
         </label>
@@ -322,25 +307,15 @@ function DeadlineRow({
           </div>
           {item.note && !item.done ? <div className="list-row__note">{item.note}</div> : null}
         </button>
-        {!deleting ? (
+        <div className="list-row__actions">
+          <IconButton label={t("deadlines.editTitle")} onClick={onEdit}>
+            <EditIcon />
+          </IconButton>
           <IconButton label={t("deadlines.delete")} tone="danger" onClick={onRequestDelete}>
             <TrashIcon />
           </IconButton>
-        ) : null}
-      </div>
-      {deleting ? (
-        <div className="confirm-banner confirm-banner--tight">
-          <p className="confirm-banner__text">{t("deadlines.deleteConfirmBody")}</p>
-          <div className="actions-bar">
-            <Button variant="danger" onClick={onConfirmDelete}>
-              {t("deadlines.delete")}
-            </Button>
-            <Button variant="secondary" onClick={onCancelDelete}>
-              {t("deadlines.cancel")}
-            </Button>
-          </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

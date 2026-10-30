@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { canPersistToRemote } from "@/services/persistence/loadResult";
 import {
   loadLocation,
   loadOnboardingComplete,
@@ -21,6 +22,8 @@ import {
 
 type AppState = {
   hydrated: boolean;
+  canPersistPrayerLogs: boolean;
+  knownPrayerDayCount: number;
   onboardingComplete: boolean;
   settings: AppSettings;
   location: StoredLocation;
@@ -39,6 +42,8 @@ type AppState = {
 
 export const useAppStore = create<AppState>((set, get) => ({
   hydrated: false,
+  canPersistPrayerLogs: false,
+  knownPrayerDayCount: 0,
   onboardingComplete: false,
   settings: DEFAULT_SETTINGS,
   location: DEFAULT_LOCATION,
@@ -46,18 +51,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   toastMessage: null,
 
   hydrate: async () => {
-    const [settings, location, prayerLogs, onboardingComplete] = await Promise.all([
+    const [settings, location, prayerLoaded, onboardingComplete] = await Promise.all([
       loadSettings(),
       loadLocation(),
       loadPrayerLogs(),
       loadOnboardingComplete(),
     ]);
 
+    const prayerLogs = prayerLoaded?.data ?? {};
+    const canPersistPrayerLogs = prayerLoaded
+      ? canPersistToRemote(prayerLoaded.source)
+      : false;
+
     set({
       hydrated: true,
+      canPersistPrayerLogs,
+      knownPrayerDayCount: Object.keys(prayerLogs).length,
       settings: settings ?? DEFAULT_SETTINGS,
       location: location ?? DEFAULT_LOCATION,
-      prayerLogs: prayerLogs ?? {},
+      prayerLogs,
       onboardingComplete: onboardingComplete ?? false,
     });
   },
@@ -80,7 +92,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setPrayerStatus: async (dateKey, prayerId, status) => {
-    const logs = { ...get().prayerLogs };
+    const { canPersistPrayerLogs, knownPrayerDayCount, prayerLogs } = get();
+    const logs = { ...prayerLogs };
     const log = logs[dateKey] ?? emptyDailyLog(dateKey);
     logs[dateKey] = {
       ...log,
@@ -88,7 +101,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       updatedAt: new Date().toISOString(),
     };
     set({ prayerLogs: logs });
-    await savePrayerLogs(logs);
+    if (!canPersistPrayerLogs) return;
+    await savePrayerLogs(logs, knownPrayerDayCount);
+    set({ knownPrayerDayCount: Object.keys(logs).length });
   },
 
   togglePrayerQuick: async (dateKey, prayerId) => {

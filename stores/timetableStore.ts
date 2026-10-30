@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { canPersistToRemote } from "@/services/persistence/loadResult";
 import { loadTimetable, saveTimetable } from "@/services/persistence/storage";
 import {
   createId,
@@ -27,6 +28,10 @@ import { SUBJECT_COLORS } from "@/types/timetable";
 
 type TimetableState = {
   hydrated: boolean;
+  /** False when hydrate used stale local fallback — never write that to Turso. */
+  canPersist: boolean;
+  /** Course count from the last successful authoritative load / save. */
+  knownEntryCount: number;
   semesters: Semester[];
   activeSemesterId: string | null;
   entries: TimetableEntry[];
@@ -176,7 +181,10 @@ async function persistAll(state: {
   activeSemesterId: string | null;
   entries: TimetableEntry[];
 }) {
-  await saveTimetable(state);
+  const { canPersist, knownEntryCount } = useTimetableStore.getState();
+  if (!canPersist) return;
+  await saveTimetable(state, knownEntryCount);
+  useTimetableStore.setState({ knownEntryCount: state.entries.length });
 }
 
 export function emptySessionDraft(todayKey: string, label = "Lecture"): SessionDraft {
@@ -237,30 +245,61 @@ export function entryToDraft(entry: TimetableEntry): TimetableDraft {
 
 export const useTimetableStore = create<TimetableState>((set, get) => ({
   hydrated: false,
+  canPersist: false,
+  knownEntryCount: 0,
   semesters: [],
   activeSemesterId: null,
   entries: [],
 
   hydrate: async () => {
-    const snapshot = await loadTimetable();
+    const loaded = await loadTimetable();
 
-    let semesters = (snapshot?.semesters ?? []).map((semester) => ({
+    // Load failed — ephemeral UI only. Never write back.
+    if (!loaded) {
+      const semester = createSemester(suggestSemesterName());
+      set({
+        hydrated: true,
+        canPersist: false,
+        knownEntryCount: 0,
+        semesters: [semester],
+        activeSemesterId: semester.id,
+        entries: [],
+      });
+      return;
+    }
+
+    const { data: snapshot, source } = loaded;
+    const canPersist = canPersistToRemote(source);
+
+    let semesters = (snapshot.semesters ?? []).map((semester) => ({
       ...semester,
       breaks: normalizeSemesterBreaks(semester.breaks),
     }));
-    if (semesters.length === 0) {
+    const needsBootstrap = semesters.length === 0;
+    if (needsBootstrap) {
       semesters = [createSemester(suggestSemesterName())];
     }
 
-    const rawActiveId = snapshot?.activeSemesterId ?? null;
+    const rawActiveId = snapshot.activeSemesterId ?? null;
     const activeSemesterId =
       rawActiveId && semesters.some((s) => s.id === rawActiveId) ? rawActiveId : semesters[0].id;
 
     const fallbackId = activeSemesterId;
-    const entries = (snapshot?.entries ?? []).map((e) => migrateEntry(e, fallbackId));
+    const entries = (snapshot.entries ?? []).map((e) => migrateEntry(e, fallbackId));
 
-    set({ hydrated: true, semesters, activeSemesterId, entries });
-    await persistAll({ semesters, activeSemesterId, entries });
+    set({
+      hydrated: true,
+      canPersist,
+      knownEntryCount: entries.length,
+      semesters,
+      activeSemesterId,
+      entries,
+    });
+
+    // First-run empty remote DB only — never on local-fallback.
+    if (needsBootstrap && canPersist) {
+      await persistAll({ semesters, activeSemesterId, entries });
+    }
   },
 
   activeEntries: () => {

@@ -17,9 +17,39 @@
       }
     }
   },
+  "nav": {
+    "label": "Hauptnavigation",
+    "home": "Start",
+    "salah": "Salah",
+    "studies": "Studium",
+    "settings": "Einstellungen"
+  },
+  "dashboard": {
+    "overview": "Heute im Überblick",
+    "open": "Öffnen",
+    "stats": {
+      "salah": "Salah",
+      "classes": "Kurse",
+      "classesHint": "Heute geplant",
+      "deadlines": "Bald fällig",
+      "deadlinesHint": "Nächste 7 Tage",
+      "overdue": "{{count}} überfällig"
+    },
+    "salah": {
+      "title": "Salah"
+    },
+    "classes": {
+      "title": "Heutige Kurse",
+      "empty": "Heute stehen keine Kurse im Stundenplan."
+    },
+    "deadlines": {
+      "title": "Fristen",
+      "empty": "Nichts steht bald an."
+    }
+  },
   "studies": {
     "title": "Studium",
-    "subtitle": "Kurse und Fristen an einem Ort.",
+    "subtitle": "Semester wählen, dann Kalender, Kurse und Fristen ansehen.",
     "modules": {
       "timetable": {
         "title": "Stundenplan",
@@ -34,7 +64,7 @@
   "deadlines": {
     "title": "Fristen",
     "subtitle": "Behalte den Überblick über Abgaben und Prüfungen.",
-    "add": "Hinzufügen",
+    "add": "Frist hinzufügen",
     "addTitle": "Neue Frist",
     "editTitle": "Frist bearbeiten",
     "cancel": "Abbrechen",
@@ -165,7 +195,8 @@
       "addBreak": "+ Ferien",
       "removeBreak": "Ferien entfernen",
       "breakInvalid": "Jeder Eintrag braucht einen Namen sowie Beginn und Ende.",
-      "breakCount": "{{count}} Ferien"
+      "breakCount": "{{count}} Ferien",
+      "manageShort": "Verwalten"
     },
     "add": "Kurs hinzufügen",
     "addTitle": "Neuer Kurs",
@@ -206,10 +237,10 @@
       "exercise": "Übungsgruppe"
     },
     "emptyDayTitle": "Nichts an diesem Tag",
-    "emptyDayBody": "Tippe auf +, um einen Kurs hinzuzufügen.",
+    "emptyDayBody": "Kurse unter Kurse hinzufügen, oder einen anderen Tag wählen.",
     "modes": {
       "calendar": "Kalender",
-      "courses": "Meine Kurse"
+      "courses": "Kurse"
     },
     "recurrence": {
       "dates": "Daten",

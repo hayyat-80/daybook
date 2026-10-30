@@ -3,6 +3,7 @@ import {
   saveTimetableSnapshot,
   type TimetableSnapshot,
 } from "@/db/repositories/timetable";
+import { StaleWriteError } from "@/db/repositories/safety";
 import { withApiAuth } from "@/lib/apiHttp";
 
 export const runtime = "nodejs";
@@ -14,10 +15,20 @@ export const GET = withApiAuth(async () => {
 });
 
 export const PUT = withApiAuth(async (request) => {
-  const body = (await request.json()) as { timetable?: TimetableSnapshot };
+  const body = (await request.json()) as {
+    timetable?: TimetableSnapshot;
+    knownEntryCount?: number;
+  };
   if (!body.timetable) {
     return Response.json({ error: "Missing timetable" }, { status: 400 });
   }
-  await saveTimetableSnapshot(body.timetable);
-  return Response.json({ ok: true });
+  try {
+    await saveTimetableSnapshot(body.timetable, body.knownEntryCount ?? 0);
+    return Response.json({ ok: true });
+  } catch (error) {
+    if (error instanceof StaleWriteError) {
+      return Response.json({ error: error.message }, { status: error.status });
+    }
+    throw error;
+  }
 });

@@ -46,7 +46,7 @@ export type StudiesModule = {
 export const STUDIES_MODULES: StudiesModule[] = [
   {
     id: "timetable",
-    href: "/studies/timetable",
+    href: "/studies",
     titleKey: "studies.modules.timetable.title",
     subtitleKey: "studies.modules.timetable.subtitle",
     mark: "timetable",

@@ -17,9 +17,39 @@
       }
     }
   },
+  "nav": {
+    "label": "القائمة الرئيسية",
+    "home": "الرئيسية",
+    "salah": "الصلاة",
+    "studies": "الدراسة",
+    "settings": "الإعدادات"
+  },
+  "dashboard": {
+    "overview": "لمحة عن اليوم",
+    "open": "فتح",
+    "stats": {
+      "salah": "الصلاة",
+      "classes": "المحاضرات",
+      "classesHint": "مجدولة اليوم",
+      "deadlines": "قريبًا",
+      "deadlinesHint": "خلال ٧ أيام",
+      "overdue": "{{count}} متأخر"
+    },
+    "salah": {
+      "title": "الصلاة"
+    },
+    "classes": {
+      "title": "محاضرات اليوم",
+      "empty": "لا توجد محاضرات في جدول اليوم."
+    },
+    "deadlines": {
+      "title": "المواعيد",
+      "empty": "لا مواعيد قريبة."
+    }
+  },
   "studies": {
     "title": "الدراسة",
-    "subtitle": "المقررات والمواعيد في مكان واحد.",
+    "subtitle": "اختر فصلاً دراسياً ثم تصفح التقويم والمقررات والمواعيد.",
     "modules": {
       "timetable": {
         "title": "الجدول",
@@ -34,7 +64,7 @@
   "deadlines": {
     "title": "المواعيد النهائية",
     "subtitle": "تابع ما يستحق التسليم في دراستك.",
-    "add": "إضافة",
+    "add": "إضافة موعد",
     "addTitle": "موعد جديد",
     "editTitle": "تعديل الموعد",
     "cancel": "إلغاء",
@@ -165,7 +195,8 @@
       "addBreak": "+ عطلة",
       "removeBreak": "إزالة العطلة",
       "breakInvalid": "كل عطلة تحتاج اسمًا وتاريخ بداية ونهاية.",
-      "breakCount": "{{count}} عطل"
+      "breakCount": "{{count}} عطل",
+      "manageShort": "إدارة"
     },
     "add": "إضافة مقرر",
     "addTitle": "مقرر جديد",
@@ -206,10 +237,10 @@
       "exercise": "مجموعة تمارين"
     },
     "emptyDayTitle": "لا شيء في هذا اليوم",
-    "emptyDayBody": "اضغط + لإضافة مقرر، أو اختر يومًا آخر.",
+    "emptyDayBody": "أضف المقررات من تبويب المقررات، أو اختر يوماً آخر.",
     "modes": {
       "calendar": "التقويم",
-      "courses": "مقرراتي"
+      "courses": "المقررات"
     },
     "recurrence": {
       "dates": "تواريخ",

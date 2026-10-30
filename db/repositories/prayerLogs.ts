@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { ensureSchema, getDb } from "@/db/client";
 import { prayerLogs } from "@/db/schema";
+import { assertFreshReplace } from "@/db/repositories/safety";
 import type { DailyPrayerLog, PrayerStatus } from "@/types/prayer";
 
 function rowToLog(row: typeof prayerLogs.$inferSelect): DailyPrayerLog {
@@ -29,23 +30,35 @@ export async function getAllPrayerLogs(): Promise<Record<string, DailyPrayerLog>
   return out;
 }
 
-export async function saveAllPrayerLogs(logs: Record<string, DailyPrayerLog>): Promise<void> {
+export async function saveAllPrayerLogs(
+  logs: Record<string, DailyPrayerLog>,
+  knownDayCount = 0,
+): Promise<void> {
   await ensureSchema();
   const db = getDb();
+  const existing = await db.select({ dateKey: prayerLogs.dateKey }).from(prayerLogs);
+  const values = Object.values(logs);
+  assertFreshReplace({
+    resource: "prayer logs",
+    existingCount: existing.length,
+    knownCount: knownDayCount,
+    incomingCount: values.length,
+  });
 
   // Replace snapshot: clear then insert (personal DB, small volume).
   await db.delete(prayerLogs);
-  const values = Object.values(logs).map((log) => ({
-    dateKey: log.dateKey,
-    fajr: log.prayers.fajr,
-    dhuhr: log.prayers.dhuhr,
-    asr: log.prayers.asr,
-    maghrib: log.prayers.maghrib,
-    isha: log.prayers.isha,
-    updatedAt: log.updatedAt,
-  }));
   if (values.length === 0) return;
-  await db.insert(prayerLogs).values(values);
+  await db.insert(prayerLogs).values(
+    values.map((log) => ({
+      dateKey: log.dateKey,
+      fajr: log.prayers.fajr,
+      dhuhr: log.prayers.dhuhr,
+      asr: log.prayers.asr,
+      maghrib: log.prayers.maghrib,
+      isha: log.prayers.isha,
+      updatedAt: log.updatedAt,
+    })),
+  );
 }
 
 export async function upsertPrayerLog(log: DailyPrayerLog): Promise<void> {

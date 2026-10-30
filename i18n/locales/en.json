@@ -17,9 +17,39 @@
       }
     }
   },
+  "nav": {
+    "label": "Main",
+    "home": "Home",
+    "salah": "Salah",
+    "studies": "Studies",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "overview": "Today at a glance",
+    "open": "Open",
+    "stats": {
+      "salah": "Salah",
+      "classes": "Classes",
+      "classesHint": "Scheduled today",
+      "deadlines": "Due soon",
+      "deadlinesHint": "Next 7 days",
+      "overdue": "{{count}} overdue"
+    },
+    "salah": {
+      "title": "Salah"
+    },
+    "classes": {
+      "title": "Today’s classes",
+      "empty": "No classes on the timetable for today."
+    },
+    "deadlines": {
+      "title": "Deadlines",
+      "empty": "Nothing due soon. You’re clear."
+    }
+  },
   "studies": {
     "title": "Studies",
-    "subtitle": "Classes and deadlines in one place.",
+    "subtitle": "Pick a semester, then browse calendar, courses, and deadlines.",
     "modules": {
       "timetable": {
         "title": "Timetable",
@@ -34,7 +64,7 @@
   "deadlines": {
     "title": "Deadlines",
     "subtitle": "Track what is due for your studies.",
-    "add": "Add",
+    "add": "Add deadline",
     "addTitle": "New deadline",
     "editTitle": "Edit deadline",
     "cancel": "Cancel",
@@ -165,7 +195,8 @@
       "addBreak": "+ Break",
       "removeBreak": "Remove break",
       "breakInvalid": "Each break needs a name and a start and end date.",
-      "breakCount": "{{count}} breaks"
+      "breakCount": "{{count}} breaks",
+      "manageShort": "Manage"
     },
     "add": "Add course",
     "addTitle": "New course",
@@ -206,10 +237,10 @@
       "exercise": "Exercise group"
     },
     "emptyDayTitle": "Nothing on this day",
-    "emptyDayBody": "Tap + to add a course, or pick another day.",
+    "emptyDayBody": "Add courses under Courses, or pick another day.",
     "modes": {
       "calendar": "Calendar",
-      "courses": "My courses"
+      "courses": "Courses"
     },
     "recurrence": {
       "dates": "Dates",

@@ -3,6 +3,7 @@ import { inArray } from "drizzle-orm";
 import { ensureSchema, getDb } from "@/db/client";
 import { courseSessions, courses, semesterBreaks, semesters } from "@/db/schema";
 import { getAppState, saveAppState } from "@/db/repositories/appState";
+import { assertFreshReplace } from "@/db/repositories/safety";
 import type {
   CourseSession,
   RecurrenceKind,
@@ -90,11 +91,21 @@ export async function getTimetableSnapshot(): Promise<TimetableSnapshot> {
   };
 }
 
-export async function saveTimetableSnapshot(snapshot: TimetableSnapshot): Promise<void> {
+export async function saveTimetableSnapshot(
+  snapshot: TimetableSnapshot,
+  knownEntryCount = 0,
+): Promise<void> {
   await ensureSchema();
   const db = getDb();
 
   const existingCourses = await db.select({ id: courses.id }).from(courses);
+  assertFreshReplace({
+    resource: "timetable courses",
+    existingCount: existingCourses.length,
+    knownCount: knownEntryCount,
+    incomingCount: snapshot.entries.length,
+  });
+
   const courseIds = existingCourses.map((c) => c.id);
 
   if (courseIds.length > 0) {

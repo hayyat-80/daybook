@@ -1,11 +1,14 @@
 import { create } from "zustand";
 
+import { canPersistToRemote } from "@/services/persistence/loadResult";
 import { loadDeadlines, saveDeadlines } from "@/services/persistence/storage";
 import { createId, parseFlexibleDate } from "@/services/timetable/recurrence";
 import type { DeadlineDraft, StudyDeadline } from "@/types/deadlines";
 
 type DeadlinesState = {
   hydrated: boolean;
+  canPersist: boolean;
+  knownCount: number;
   items: StudyDeadline[];
   hydrate: () => Promise<void>;
   add: (draft: DeadlineDraft) => Promise<void>;
@@ -22,16 +25,31 @@ function sortItems(items: StudyDeadline[]): StudyDeadline[] {
 }
 
 async function persist(items: StudyDeadline[]) {
-  await saveDeadlines(items);
+  const { canPersist, knownCount } = useDeadlinesStore.getState();
+  if (!canPersist) return;
+  await saveDeadlines(items, knownCount);
+  useDeadlinesStore.setState({ knownCount: items.length });
 }
 
 export const useDeadlinesStore = create<DeadlinesState>((set, get) => ({
   hydrated: false,
+  canPersist: false,
+  knownCount: 0,
   items: [],
 
   hydrate: async () => {
     const loaded = await loadDeadlines();
-    set({ items: sortItems(loaded ?? []), hydrated: true });
+    if (!loaded) {
+      set({ hydrated: true, canPersist: false, knownCount: 0, items: [] });
+      return;
+    }
+    const items = sortItems(loaded.data);
+    set({
+      hydrated: true,
+      canPersist: canPersistToRemote(loaded.source),
+      knownCount: items.length,
+      items,
+    });
   },
 
   add: async (draft) => {

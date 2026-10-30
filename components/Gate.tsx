@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
+import { AppNav } from "@/components/nav/AppNav";
 import { PageLoader } from "@/components/ui/Loader";
 import { useAppStore } from "@/stores/appStore";
 import { useDeadlinesStore } from "@/stores/deadlinesStore";
@@ -40,5 +41,14 @@ export function Gate({ children }: { children: React.ReactNode }) {
   if (!onboardingComplete && pathname !== "/onboarding") return null;
   if (onboardingComplete && pathname === "/onboarding") return null;
 
-  return <>{children}</>;
+  if (pathname === "/onboarding") {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className="app-chrome">
+      <AppNav />
+      <div className="app-chrome__main">{children}</div>
+    </div>
+  );
 }

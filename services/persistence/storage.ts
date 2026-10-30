@@ -1,4 +1,5 @@
 import { apiGet, apiPut, isRemoteDbEnabled } from "@/services/persistence/remoteApi";
+import type { LoadResult } from "@/services/persistence/loadResult";
 import type { TimetableSnapshot } from "@/db/repositories/timetable";
 import type { StudyDeadline } from "@/types/deadlines";
 import type { DailyPrayerLog } from "@/types/prayer";
@@ -70,25 +71,32 @@ export async function saveLocation(location: StoredLocation): Promise<void> {
   localSet("location", location);
 }
 
-export async function loadPrayerLogs(): Promise<Record<string, DailyPrayerLog> | null> {
+export async function loadPrayerLogs(): Promise<LoadResult<Record<string, DailyPrayerLog>> | null> {
   if (isRemoteDbEnabled()) {
     try {
       const data = await apiGet<{ prayerLogs: Record<string, DailyPrayerLog> }>("/api/prayer-logs");
-      return data.prayerLogs;
+      return { data: data.prayerLogs ?? {}, source: "remote" };
     } catch {
-      return localGet<Record<string, DailyPrayerLog>>("prayer_logs");
+      const local = localGet<Record<string, DailyPrayerLog>>("prayer_logs");
+      return local ? { data: local, source: "local-fallback" } : null;
     }
   }
-  return localGet<Record<string, DailyPrayerLog>>("prayer_logs");
+  const local = localGet<Record<string, DailyPrayerLog>>("prayer_logs");
+  return local ? { data: local, source: "local" } : { data: {}, source: "local" };
 }
 
-export async function savePrayerLogs(prayerLogs: Record<string, DailyPrayerLog>): Promise<void> {
+export async function savePrayerLogs(
+  prayerLogs: Record<string, DailyPrayerLog>,
+  knownDayCount: number,
+): Promise<void> {
   if (isRemoteDbEnabled()) {
     try {
-      await apiPut("/api/prayer-logs", { prayerLogs });
+      await apiPut("/api/prayer-logs", { prayerLogs, knownDayCount });
+      localSet("prayer_logs", prayerLogs);
       return;
     } catch {
-      // fall through
+      // fall through — do not treat a rejected stale write as license to clobber local only
+      throw new Error("Failed to save prayer logs to remote");
     }
   }
   localSet("prayer_logs", prayerLogs);
@@ -126,49 +134,66 @@ export async function saveOnboardingComplete(onboardingComplete: boolean): Promi
   localSet("onboarding_complete", onboardingComplete);
 }
 
-export async function loadTimetable(): Promise<TimetableSnapshot | null> {
+export async function loadTimetable(): Promise<LoadResult<TimetableSnapshot> | null> {
   if (isRemoteDbEnabled()) {
     try {
       const data = await apiGet<{ timetable: TimetableSnapshot }>("/api/timetable");
-      return data.timetable;
+      return { data: data.timetable, source: "remote" };
     } catch {
-      return localGet<TimetableSnapshot>("timetable");
+      const local = localGet<TimetableSnapshot>("timetable");
+      return local ? { data: local, source: "local-fallback" } : null;
     }
   }
-  return localGet<TimetableSnapshot>("timetable");
+  const local = localGet<TimetableSnapshot>("timetable");
+  return local
+    ? { data: local, source: "local" }
+    : {
+        data: { semesters: [], activeSemesterId: null, entries: [] },
+        source: "local",
+      };
 }
 
-export async function saveTimetable(timetable: TimetableSnapshot): Promise<void> {
+export async function saveTimetable(
+  timetable: TimetableSnapshot,
+  knownEntryCount: number,
+): Promise<void> {
   if (isRemoteDbEnabled()) {
     try {
-      await apiPut("/api/timetable", { timetable });
+      await apiPut("/api/timetable", { timetable, knownEntryCount });
+      localSet("timetable", timetable);
       return;
     } catch {
-      // fall through
+      throw new Error("Failed to save timetable to remote");
     }
   }
   localSet("timetable", timetable);
 }
 
-export async function loadDeadlines(): Promise<StudyDeadline[] | null> {
+export async function loadDeadlines(): Promise<LoadResult<StudyDeadline[]> | null> {
   if (isRemoteDbEnabled()) {
     try {
       const data = await apiGet<{ deadlines: StudyDeadline[] }>("/api/deadlines");
-      return data.deadlines;
+      return { data: data.deadlines ?? [], source: "remote" };
     } catch {
-      return localGet<StudyDeadline[]>("study_deadlines");
+      const local = localGet<StudyDeadline[]>("study_deadlines");
+      return local ? { data: local, source: "local-fallback" } : null;
     }
   }
-  return localGet<StudyDeadline[]>("study_deadlines");
+  const local = localGet<StudyDeadline[]>("study_deadlines");
+  return { data: local ?? [], source: "local" };
 }
 
-export async function saveDeadlines(deadlines: StudyDeadline[]): Promise<void> {
+export async function saveDeadlines(
+  deadlines: StudyDeadline[],
+  knownCount: number,
+): Promise<void> {
   if (isRemoteDbEnabled()) {
     try {
-      await apiPut("/api/deadlines", { deadlines });
+      await apiPut("/api/deadlines", { deadlines, knownCount });
+      localSet("study_deadlines", deadlines);
       return;
     } catch {
-      // fall through
+      throw new Error("Failed to save deadlines to remote");
     }
   }
   localSet("study_deadlines", deadlines);

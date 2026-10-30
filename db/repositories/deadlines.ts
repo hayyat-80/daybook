@@ -1,5 +1,6 @@
 import { ensureSchema, getDb } from "@/db/client";
 import { studyDeadlines } from "@/db/schema";
+import { assertFreshReplace } from "@/db/repositories/safety";
 import type { StudyDeadline } from "@/types/deadlines";
 
 function rowToDeadline(row: typeof studyDeadlines.$inferSelect): StudyDeadline {
@@ -25,9 +26,16 @@ export async function getDeadlines(): Promise<StudyDeadline[]> {
   });
 }
 
-export async function saveDeadlines(items: StudyDeadline[]): Promise<void> {
+export async function saveDeadlines(items: StudyDeadline[], knownCount = 0): Promise<void> {
   await ensureSchema();
   const db = getDb();
+  const existing = await db.select({ id: studyDeadlines.id }).from(studyDeadlines);
+  assertFreshReplace({
+    resource: "deadlines",
+    existingCount: existing.length,
+    knownCount,
+    incomingCount: items.length,
+  });
   await db.delete(studyDeadlines);
   if (items.length === 0) return;
   await db.insert(studyDeadlines).values(

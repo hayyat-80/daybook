@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function NewCoursePage() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/studies/timetable");
+    router.replace("/studies");
   }, [router]);
   return null;
 }

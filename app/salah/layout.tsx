@@ -13,8 +13,8 @@ export default function SalahLayout({ children }: { children: React.ReactNode })
       title={t("hub.modules.salah.title")}
       subtitle={t("hub.modules.salah.subtitle")}
       backHref="/"
+      nav={<SalahNav />}
     >
-      <SalahNav />
       {children}
     </Shell>
   );

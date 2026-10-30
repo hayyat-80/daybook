@@ -12,6 +12,7 @@ type ShellProps = {
   backHref?: string;
   backLabel?: string;
   action?: ReactNode;
+  nav?: ReactNode;
   children: ReactNode;
   brand?: boolean;
 };
@@ -22,18 +23,23 @@ export function Shell({
   backHref,
   backLabel,
   action,
+  nav,
   children,
   brand = false,
 }: ShellProps) {
   const { t } = useTranslation();
+  const showHeader = Boolean((backHref || title || action) && !brand);
 
   return (
-    <div className="app-shell">
-      {(backHref || title || action) && !brand ? (
+    <div className={`app-shell${brand ? " app-shell--brand" : ""}`}>
+      {showHeader ? (
         <header className="app-shell__header">
           <div className="app-shell__header-main">
             {backHref ? (
-              <Link href={backHref} className="app-shell__back">
+              <Link
+                href={backHref}
+                className={`app-shell__back${backHref === "/" ? " app-shell__back--root" : ""}`}
+              >
                 <Chevron direction="left" />
                 {backLabel ?? t("hub.backHome")}
               </Link>
@@ -44,7 +50,8 @@ export function Shell({
           {action ? <div className="app-shell__action">{action}</div> : null}
         </header>
       ) : null}
-      {children}
+      {nav ? <div className="app-shell__nav">{nav}</div> : null}
+      <div className="app-shell__scroll">{children}</div>
     </div>
   );
 }
