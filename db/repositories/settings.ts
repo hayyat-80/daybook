@@ -29,19 +29,19 @@ function rowToSettings(row: typeof settings.$inferSelect): AppSettings {
   };
 }
 
-export async function getSettings(): Promise<AppSettings> {
+export async function getSettings(userId: string): Promise<AppSettings> {
   await ensureSchema();
   const db = getDb();
-  const rows = await db.select().from(settings).where(eq(settings.id, 1)).limit(1);
+  const rows = await db.select().from(settings).where(eq(settings.userId, userId)).limit(1);
   return rows[0] ? rowToSettings(rows[0]) : DEFAULT_SETTINGS;
 }
 
-export async function saveSettings(value: AppSettings): Promise<void> {
+export async function saveSettings(userId: string, value: AppSettings): Promise<void> {
   await ensureSchema();
   const db = getDb();
   const updatedAt = new Date().toISOString();
   const payload = {
-    id: 1 as const,
+    userId,
     calculationMethod: value.calculationMethod,
     madhab: value.madhab,
     highLatitudeRule: value.highLatitudeRule,
@@ -59,7 +59,7 @@ export async function saveSettings(value: AppSettings): Promise<void> {
     .insert(settings)
     .values(payload)
     .onConflictDoUpdate({
-      target: settings.id,
+      target: settings.userId,
       set: { ...payload },
     });
 }

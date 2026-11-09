@@ -1,17 +1,17 @@
 import { getDeadlines, saveDeadlines } from "@/db/repositories/deadlines";
 import { StaleWriteError } from "@/db/repositories/safety";
-import { withApiAuth } from "@/lib/apiHttp";
+import { withUserApi } from "@/lib/apiHttp";
 import type { StudyDeadline } from "@/types/deadlines";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = withApiAuth(async () => {
-  const deadlines = await getDeadlines();
+export const GET = withUserApi(async (_request, userId) => {
+  const deadlines = await getDeadlines(userId);
   return Response.json({ deadlines });
 });
 
-export const PUT = withApiAuth(async (request) => {
+export const PUT = withUserApi(async (request, userId) => {
   const body = (await request.json()) as {
     deadlines?: StudyDeadline[];
     knownCount?: number;
@@ -20,7 +20,7 @@ export const PUT = withApiAuth(async (request) => {
     return Response.json({ error: "Missing deadlines" }, { status: 400 });
   }
   try {
-    await saveDeadlines(body.deadlines, body.knownCount ?? 0);
+    await saveDeadlines(userId, body.deadlines, body.knownCount ?? 0);
     return Response.json({ ok: true });
   } catch (error) {
     if (error instanceof StaleWriteError) {

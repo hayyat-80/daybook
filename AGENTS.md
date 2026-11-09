@@ -23,7 +23,8 @@ Lint with **oxlint**, format with **oxfmt** (OXC). Do not add ESLint/Prettier.
 
 - Browser persistence: `services/persistence/storage.ts` (localStorage or Turso via domain APIs).
 - Server: `app/api/{settings,location,app-state,prayer-logs,timetable}` → `db/repositories/*` → Turso (`db/schema.ts`).
-- Env template: `.env.example` (`NEXT_PUBLIC_*` for client, `DATABASE_URL` / `DATABASE_AUTH_TOKEN` / `API_SECRET` for server).
+- Env template: `.env.example` (`NEXT_PUBLIC_*` for client; `DATABASE_URL` / `DATABASE_AUTH_TOKEN` / `AUTH_SECRET` / `API_SECRET` for server; optional `AUTH_ALLOW_REGISTER=1`, `DATA_OWNER_EMAIL`).
+- Auth: `/register` + `/login` (email/password, scrypt) → httpOnly session with `role` (`admin` | `user`). First user is admin; later sign-ups are `user`. Domain tables are scoped by `user_id`. Middleware gates when `AUTH_SECRET` is set. Use `assertMinRole` / `withUserApi` for APIs.
 
 ## Rules
 

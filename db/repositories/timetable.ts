@@ -1,4 +1,4 @@
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 import { ensureSchema, getDb } from "@/db/client";
 import { courseSessions, courses, semesterBreaks, semesters } from "@/db/schema";
@@ -19,17 +19,26 @@ export type TimetableSnapshot = {
   entries: TimetableEntry[];
 };
 
-export async function getTimetableSnapshot(): Promise<TimetableSnapshot> {
+export async function getTimetableSnapshot(userId: string): Promise<TimetableSnapshot> {
   await ensureSchema();
   const db = getDb();
-  const [{ activeSemesterId }, semesterRows, breakRows, courseRows, sessionRows] =
-    await Promise.all([
-      getAppState(),
-      db.select().from(semesters),
-      db.select().from(semesterBreaks),
-      db.select().from(courses),
-      db.select().from(courseSessions),
-    ]);
+  const [{ activeSemesterId }, semesterRows, courseRows] = await Promise.all([
+    getAppState(userId),
+    db.select().from(semesters).where(eq(semesters.userId, userId)),
+    db.select().from(courses).where(eq(courses.userId, userId)),
+  ]);
+
+  const semesterIds = semesterRows.map((s) => s.id);
+  const courseIds = courseRows.map((c) => c.id);
+
+  const [breakRows, sessionRows] = await Promise.all([
+    semesterIds.length > 0
+      ? db.select().from(semesterBreaks).where(inArray(semesterBreaks.semesterId, semesterIds))
+      : Promise.resolve([]),
+    courseIds.length > 0
+      ? db.select().from(courseSessions).where(inArray(courseSessions.courseId, courseIds))
+      : Promise.resolve([]),
+  ]);
 
   const breaksBySemester = new Map<string, Semester["breaks"]>();
   for (const b of breakRows) {
@@ -92,13 +101,17 @@ export async function getTimetableSnapshot(): Promise<TimetableSnapshot> {
 }
 
 export async function saveTimetableSnapshot(
+  userId: string,
   snapshot: TimetableSnapshot,
   knownEntryCount = 0,
 ): Promise<void> {
   await ensureSchema();
   const db = getDb();
 
-  const existingCourses = await db.select({ id: courses.id }).from(courses);
+  const existingCourses = await db
+    .select({ id: courses.id })
+    .from(courses)
+    .where(eq(courses.userId, userId));
   assertFreshReplace({
     resource: "timetable courses",
     existingCount: existingCourses.length,
@@ -107,18 +120,26 @@ export async function saveTimetableSnapshot(
   });
 
   const courseIds = existingCourses.map((c) => c.id);
+  const existingSemesters = await db
+    .select({ id: semesters.id })
+    .from(semesters)
+    .where(eq(semesters.userId, userId));
+  const semesterIds = existingSemesters.map((s) => s.id);
 
   if (courseIds.length > 0) {
     await db.delete(courseSessions).where(inArray(courseSessions.courseId, courseIds));
   }
-  await db.delete(courses);
-  await db.delete(semesterBreaks);
-  await db.delete(semesters);
+  await db.delete(courses).where(eq(courses.userId, userId));
+  if (semesterIds.length > 0) {
+    await db.delete(semesterBreaks).where(inArray(semesterBreaks.semesterId, semesterIds));
+  }
+  await db.delete(semesters).where(eq(semesters.userId, userId));
 
   if (snapshot.semesters.length > 0) {
     await db.insert(semesters).values(
       snapshot.semesters.map((s) => ({
         id: s.id,
+        userId,
         name: s.name,
         startDate: s.startDate ?? null,
         endDate: s.endDate ?? null,
@@ -145,6 +166,7 @@ export async function saveTimetableSnapshot(
     await db.insert(courses).values(
       snapshot.entries.map((e) => ({
         id: e.id,
+        userId,
         semesterId: e.semesterId,
         title: e.title,
         color: e.color,
@@ -176,8 +198,8 @@ export async function saveTimetableSnapshot(
     }
   }
 
-  const state = await getAppState();
-  await saveAppState({
+  const state = await getAppState(userId);
+  await saveAppState(userId, {
     onboardingComplete: state.onboardingComplete,
     activeSemesterId: snapshot.activeSemesterId,
   });

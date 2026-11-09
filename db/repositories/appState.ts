@@ -8,10 +8,10 @@ export type AppStateRow = {
   activeSemesterId: string | null;
 };
 
-export async function getAppState(): Promise<AppStateRow> {
+export async function getAppState(userId: string): Promise<AppStateRow> {
   await ensureSchema();
   const db = getDb();
-  const rows = await db.select().from(appState).where(eq(appState.id, 1)).limit(1);
+  const rows = await db.select().from(appState).where(eq(appState.userId, userId)).limit(1);
   if (!rows[0]) {
     return { onboardingComplete: true, activeSemesterId: null };
   }
@@ -21,11 +21,11 @@ export async function getAppState(): Promise<AppStateRow> {
   };
 }
 
-export async function saveAppState(value: AppStateRow): Promise<void> {
+export async function saveAppState(userId: string, value: AppStateRow): Promise<void> {
   await ensureSchema();
   const db = getDb();
   const payload = {
-    id: 1 as const,
+    userId,
     onboardingComplete: true,
     activeSemesterId: value.activeSemesterId,
   };
@@ -33,7 +33,7 @@ export async function saveAppState(value: AppStateRow): Promise<void> {
     .insert(appState)
     .values(payload)
     .onConflictDoUpdate({
-      target: appState.id,
+      target: appState.userId,
       set: { ...payload },
     });
 }

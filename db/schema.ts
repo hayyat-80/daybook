@@ -1,8 +1,19 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-/** Singleton app preferences (always id = 1). */
+/** App accounts — roles: admin | user (extensible). */
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("user"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+/** Per-user preferences. */
 export const settings = sqliteTable("settings", {
-  id: integer("id").primaryKey().default(1),
+  userId: text("user_id").primaryKey(),
   calculationMethod: text("calculation_method").notNull(),
   madhab: text("madhab").notNull(),
   highLatitudeRule: text("high_latitude_rule").notNull(),
@@ -17,9 +28,9 @@ export const settings = sqliteTable("settings", {
   updatedAt: text("updated_at").notNull(),
 });
 
-/** Current location used for prayer times (always id = 1). */
+/** Per-user location for prayer times. */
 export const location = sqliteTable("location", {
-  id: integer("id").primaryKey().default(1),
+  userId: text("user_id").primaryKey(),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
   city: text("city").notNull(),
@@ -29,26 +40,34 @@ export const location = sqliteTable("location", {
   updatedAt: text("updated_at").notNull(),
 });
 
-/** App-level flags (always id = 1). */
+/** Per-user app flags. */
 export const appState = sqliteTable("app_state", {
-  id: integer("id").primaryKey().default(1),
+  userId: text("user_id").primaryKey(),
   onboardingComplete: integer("onboarding_complete", { mode: "boolean" }).notNull().default(false),
   activeSemesterId: text("active_semester_id"),
 });
 
-/** One row per calendar day of prayer tracking. */
-export const prayerLogs = sqliteTable("prayer_logs", {
-  dateKey: text("date_key").primaryKey(),
-  fajr: text("fajr").notNull(),
-  dhuhr: text("dhuhr").notNull(),
-  asr: text("asr").notNull(),
-  maghrib: text("maghrib").notNull(),
-  isha: text("isha").notNull(),
-  updatedAt: text("updated_at").notNull(),
-});
+/** One row per user + calendar day of prayer tracking. */
+export const prayerLogs = sqliteTable(
+  "prayer_logs",
+  {
+    userId: text("user_id").notNull(),
+    dateKey: text("date_key").notNull(),
+    fajr: text("fajr").notNull(),
+    dhuhr: text("dhuhr").notNull(),
+    asr: text("asr").notNull(),
+    maghrib: text("maghrib").notNull(),
+    isha: text("isha").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.dateKey] }),
+  }),
+);
 
 export const semesters = sqliteTable("semesters", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
   name: text("name").notNull(),
   startDate: text("start_date"),
   endDate: text("end_date"),
@@ -66,6 +85,7 @@ export const semesterBreaks = sqliteTable("semester_breaks", {
 
 export const courses = sqliteTable("courses", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
   semesterId: text("semester_id").notNull(),
   title: text("title").notNull(),
   color: text("color").notNull(),
@@ -93,6 +113,7 @@ export const courseSessions = sqliteTable("course_sessions", {
 /** Assignments / exams / other study deadlines. */
 export const studyDeadlines = sqliteTable("study_deadlines", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
   title: text("title").notNull(),
   dueDate: text("due_date").notNull(),
   note: text("note"),

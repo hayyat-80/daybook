@@ -2,6 +2,7 @@ import { config as loadEnv } from "dotenv";
 import { createClient, type Client } from "@libsql/client";
 import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 
+import { migrateUserScope } from "@/db/migrateUserScope";
 import * as schema from "./schema";
 
 loadEnv({ quiet: true });
@@ -11,8 +12,8 @@ type Db = LibSQLDatabase<typeof schema>;
 let cached: { db: Db; client: Client } | null = null;
 let schemaReady = false;
 
-export function getDb(): Db {
-  if (cached) return cached.db;
+function ensureClient(): Client {
+  if (cached) return cached.client;
 
   const url = process.env.DATABASE_URL;
   if (!url) {
@@ -28,12 +29,30 @@ export function getDb(): Db {
     client,
     db: drizzle(client, { schema }),
   };
-  return cached.db;
+  return client;
+}
+
+export function getDb(): Db {
+  ensureClient();
+  return cached!.db;
+}
+
+export function getClient(): Client {
+  return ensureClient();
 }
 
 const DDL = [
+  `CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
   `CREATE TABLE IF NOT EXISTS settings (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
+    user_id TEXT PRIMARY KEY NOT NULL,
     calculation_method TEXT NOT NULL,
     madhab TEXT NOT NULL,
     high_latitude_rule TEXT NOT NULL,
@@ -48,7 +67,7 @@ const DDL = [
     updated_at TEXT NOT NULL
   )`,
   `CREATE TABLE IF NOT EXISTS location (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
+    user_id TEXT PRIMARY KEY NOT NULL,
     latitude REAL NOT NULL,
     longitude REAL NOT NULL,
     city TEXT NOT NULL,
@@ -58,21 +77,24 @@ const DDL = [
     updated_at TEXT NOT NULL
   )`,
   `CREATE TABLE IF NOT EXISTS app_state (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
+    user_id TEXT PRIMARY KEY NOT NULL,
     onboarding_complete INTEGER NOT NULL DEFAULT 0,
     active_semester_id TEXT
   )`,
   `CREATE TABLE IF NOT EXISTS prayer_logs (
-    date_key TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
+    date_key TEXT NOT NULL,
     fajr TEXT NOT NULL,
     dhuhr TEXT NOT NULL,
     asr TEXT NOT NULL,
     maghrib TEXT NOT NULL,
     isha TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, date_key)
   )`,
   `CREATE TABLE IF NOT EXISTS semesters (
     id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
     name TEXT NOT NULL,
     start_date TEXT,
     end_date TEXT,
@@ -88,6 +110,7 @@ const DDL = [
   )`,
   `CREATE TABLE IF NOT EXISTS courses (
     id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
     semester_id TEXT NOT NULL,
     title TEXT NOT NULL,
     color TEXT NOT NULL,
@@ -112,6 +135,7 @@ const DDL = [
   )`,
   `CREATE TABLE IF NOT EXISTS study_deadlines (
     id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL,
     title TEXT NOT NULL,
     due_date TEXT NOT NULL,
     note TEXT,
@@ -123,12 +147,15 @@ const DDL = [
   `DROP TABLE IF EXISTS kv_store`,
 ];
 
-/** Create domain tables if missing (and drop legacy kv_store). */
+/** Create domain tables if missing, then migrate legacy unscoped rows. */
 export async function ensureSchema(): Promise<void> {
-  if (schemaReady) return;
   getDb();
-  for (const sql of DDL) {
-    await cached!.client.execute(sql);
+  if (!schemaReady) {
+    for (const sql of DDL) {
+      await cached!.client.execute(sql);
+    }
+    schemaReady = true;
   }
-  schemaReady = true;
+  // Idempotent — runs again once the data-owner account exists.
+  await migrateUserScope(cached!.client);
 }

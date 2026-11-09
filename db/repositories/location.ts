@@ -4,10 +4,10 @@ import { ensureSchema, getDb } from "@/db/client";
 import { location } from "@/db/schema";
 import { DEFAULT_LOCATION, type StoredLocation } from "@/types/settings";
 
-export async function getLocation(): Promise<StoredLocation> {
+export async function getLocation(userId: string): Promise<StoredLocation> {
   await ensureSchema();
   const db = getDb();
-  const rows = await db.select().from(location).where(eq(location.id, 1)).limit(1);
+  const rows = await db.select().from(location).where(eq(location.userId, userId)).limit(1);
   if (!rows[0]) return DEFAULT_LOCATION;
   const row = rows[0];
   return {
@@ -21,11 +21,11 @@ export async function getLocation(): Promise<StoredLocation> {
   };
 }
 
-export async function saveLocation(value: StoredLocation): Promise<void> {
+export async function saveLocation(userId: string, value: StoredLocation): Promise<void> {
   await ensureSchema();
   const db = getDb();
   const payload = {
-    id: 1 as const,
+    userId,
     latitude: value.latitude,
     longitude: value.longitude,
     city: value.city,
@@ -38,7 +38,7 @@ export async function saveLocation(value: StoredLocation): Promise<void> {
     .insert(location)
     .values(payload)
     .onConflictDoUpdate({
-      target: location.id,
+      target: location.userId,
       set: { ...payload },
     });
 }
