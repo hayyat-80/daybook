@@ -2607,6 +2607,139 @@ textarea.field-control {
   }
 }
 
+.auth-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 18px 32px;
+}
+
+.auth-screen__card {
+  width: min(100%, 22rem);
+  padding: 28px 22px 24px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-panel);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 48px rgba(18, 24, 22, 0.08);
+}
+
+.auth-screen__title {
+  margin-top: 8px;
+  font-size: 1.75rem;
+}
+
+.auth-screen__hint {
+  margin: 8px 0 0;
+  color: var(--ui-muted);
+}
+
+.auth-screen__form {
+  margin-top: 22px;
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-input__control {
+  padding-inline-end: 3rem;
+}
+
+.password-input__toggle {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ui-muted);
+  cursor: pointer;
+}
+
+.password-input__toggle:hover {
+  color: var(--ui-text);
+  background: var(--ui-highlight);
+}
+
+.password-input__toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ui-highlight);
+  color: var(--ui-accent);
+}
+
+.auth-screen__rule {
+  margin: 6px 0 0;
+  color: var(--ui-muted);
+}
+
+.auth-screen__switch {
+  margin: 18px 0 0;
+  text-align: center;
+  color: var(--ui-muted);
+}
+
+.auth-screen__link {
+  color: var(--ui-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-screen__link:hover {
+  text-decoration: underline;
+}
+
+.settings-account {
+  margin: 0 0 8px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--ui-border);
+  display: grid;
+  gap: 12px;
+}
+
+.settings-account:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.settings-account__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-account__identity {
+  display: grid;
+  gap: 2px;
+}
+
+.settings-account__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.settings-account__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.settings-account__actions .ui-btn {
+  min-width: 6.5rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

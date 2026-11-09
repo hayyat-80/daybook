@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { ensureSchema, getDb } from "@/db/client";
 import { prayerLogs } from "@/db/schema";
@@ -19,10 +19,10 @@ function rowToLog(row: typeof prayerLogs.$inferSelect): DailyPrayerLog {
   };
 }
 
-export async function getAllPrayerLogs(): Promise<Record<string, DailyPrayerLog>> {
+export async function getAllPrayerLogs(userId: string): Promise<Record<string, DailyPrayerLog>> {
   await ensureSchema();
   const db = getDb();
-  const rows = await db.select().from(prayerLogs);
+  const rows = await db.select().from(prayerLogs).where(eq(prayerLogs.userId, userId));
   const out: Record<string, DailyPrayerLog> = {};
   for (const row of rows) {
     out[row.dateKey] = rowToLog(row);
@@ -31,12 +31,16 @@ export async function getAllPrayerLogs(): Promise<Record<string, DailyPrayerLog>
 }
 
 export async function saveAllPrayerLogs(
+  userId: string,
   logs: Record<string, DailyPrayerLog>,
   knownDayCount = 0,
 ): Promise<void> {
   await ensureSchema();
   const db = getDb();
-  const existing = await db.select({ dateKey: prayerLogs.dateKey }).from(prayerLogs);
+  const existing = await db
+    .select({ dateKey: prayerLogs.dateKey })
+    .from(prayerLogs)
+    .where(eq(prayerLogs.userId, userId));
   const values = Object.values(logs);
   assertFreshReplace({
     resource: "prayer logs",
@@ -45,11 +49,11 @@ export async function saveAllPrayerLogs(
     incomingCount: values.length,
   });
 
-  // Replace snapshot: clear then insert (personal DB, small volume).
-  await db.delete(prayerLogs);
+  await db.delete(prayerLogs).where(eq(prayerLogs.userId, userId));
   if (values.length === 0) return;
   await db.insert(prayerLogs).values(
     values.map((log) => ({
+      userId,
       dateKey: log.dateKey,
       fajr: log.prayers.fajr,
       dhuhr: log.prayers.dhuhr,
@@ -61,10 +65,11 @@ export async function saveAllPrayerLogs(
   );
 }
 
-export async function upsertPrayerLog(log: DailyPrayerLog): Promise<void> {
+export async function upsertPrayerLog(userId: string, log: DailyPrayerLog): Promise<void> {
   await ensureSchema();
   const db = getDb();
   const payload = {
+    userId,
     dateKey: log.dateKey,
     fajr: log.prayers.fajr,
     dhuhr: log.prayers.dhuhr,
@@ -74,14 +79,28 @@ export async function upsertPrayerLog(log: DailyPrayerLog): Promise<void> {
     updatedAt: log.updatedAt,
   };
   await db.insert(prayerLogs).values(payload).onConflictDoUpdate({
-    target: prayerLogs.dateKey,
-    set: payload,
+    target: [prayerLogs.userId, prayerLogs.dateKey],
+    set: {
+      fajr: payload.fajr,
+      dhuhr: payload.dhuhr,
+      asr: payload.asr,
+      maghrib: payload.maghrib,
+      isha: payload.isha,
+      updatedAt: payload.updatedAt,
+    },
   });
 }
 
-export async function getPrayerLog(dateKey: string): Promise<DailyPrayerLog | null> {
+export async function getPrayerLog(
+  userId: string,
+  dateKey: string,
+): Promise<DailyPrayerLog | null> {
   await ensureSchema();
   const db = getDb();
-  const rows = await db.select().from(prayerLogs).where(eq(prayerLogs.dateKey, dateKey)).limit(1);
+  const rows = await db
+    .select()
+    .from(prayerLogs)
+    .where(and(eq(prayerLogs.userId, userId), eq(prayerLogs.dateKey, dateKey)))
+    .limit(1);
   return rows[0] ? rowToLog(rows[0]) : null;
 }

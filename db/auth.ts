@@ -1,20 +1,33 @@
+import { getRequestRole, isAuthConfigured, isRequestAuthenticated } from "@/lib/auth/session";
+import { hasMinRole } from "@/lib/auth/roles";
+import type { UserRole } from "@/types/auth";
+
 /**
- * Simple shared-secret gate for personal API use.
- * Set API_SECRET in env; clients send `x-api-secret` header.
+ * Gate for personal API use: valid session cookie, or `x-api-secret` matching API_SECRET.
+ * When AUTH_SECRET/API_SECRET is unset, auth is off in local/dev only.
  */
-export function assertApiSecret(request: Request): Response | null {
-  const expected = process.env.API_SECRET;
-  if (!expected) {
-    // Dev convenience: allow if secret not configured
+export async function assertApiSecret(request: Request): Promise<Response | null> {
+  if (!isAuthConfigured()) {
     if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-      return Response.json({ error: "API_SECRET is not configured" }, { status: 500 });
+      return Response.json({ error: "AUTH_SECRET is not configured" }, { status: 500 });
     }
     return null;
   }
 
-  const provided = request.headers.get("x-api-secret");
-  if (provided !== expected) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (await isRequestAuthenticated(request)) return null;
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+/** Future role gates — e.g. admin-only routes. */
+export async function assertMinRole(
+  request: Request,
+  minimum: UserRole,
+): Promise<Response | null> {
+  const denied = await assertApiSecret(request);
+  if (denied) return denied;
+  const role = await getRequestRole(request);
+  if (!hasMinRole(role, minimum)) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
   }
   return null;
 }

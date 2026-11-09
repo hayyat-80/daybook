@@ -10,6 +10,7 @@ export async function GET() {
       ok: true,
       provider: "turso",
       tables: [
+        "users",
         "settings",
         "location",
         "app_state",

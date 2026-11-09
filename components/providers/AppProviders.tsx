@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { I18nextProvider } from "react-i18next";
 
 import { ThemeProvider } from "@/design-system/theme";
@@ -11,17 +12,20 @@ import { useDeadlinesStore } from "@/stores/deadlinesStore";
 import { useTimetableStore } from "@/stores/timetableStore";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const hydrateApp = useAppStore((s) => s.hydrate);
   const hydrateTimetable = useTimetableStore((s) => s.hydrate);
   const hydrateDeadlines = useDeadlinesStore((s) => s.hydrate);
   const language = useAppStore((s) => s.settings.language);
   const hydrated = useAppStore((s) => s.hydrated);
+  const isAuthScreen = pathname === "/login" || pathname === "/register";
 
   useEffect(() => {
+    if (isAuthScreen) return;
     void hydrateApp();
     void hydrateTimetable();
     void hydrateDeadlines();
-  }, [hydrateApp, hydrateTimetable, hydrateDeadlines]);
+  }, [isAuthScreen, hydrateApp, hydrateTimetable, hydrateDeadlines]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -32,7 +36,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <I18nextProvider i18n={i18n}>
       <ThemeProvider>
         {children}
-        <Toast />
+        {!isAuthScreen ? <Toast /> : null}
       </ThemeProvider>
     </I18nextProvider>
   );

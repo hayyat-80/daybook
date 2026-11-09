@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next";
 
 import { Field, Select } from "@/components/ui/Field";
+import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { type AppearanceMode } from "@/design-system/theme";
 import { applyLanguage, type AppLanguage } from "@/i18n";
 import { useAppStore } from "@/stores/appStore";
@@ -14,6 +15,8 @@ export function AppSettingsForm() {
 
   return (
     <div className="stack">
+      <UserProfileCard />
+
       <Field label={t("settings.appearance")}>
         <Select
           value={settings.appearance}

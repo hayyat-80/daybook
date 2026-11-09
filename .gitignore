@@ -54,3 +54,5 @@ next-env.d.ts
 # Vercel / tooling
 .vercel/
 .claude/
+.vercel
+.env*
